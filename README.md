@@ -2,7 +2,7 @@
 
 ![Alt text](./app/src/images/Screenshot.png?raw=true "MBMBaM Quote Search")
 
-### H3 Setup
+### Setup
 
 1. Clone repo
 2. Download [Elasticsearch 7.2.0](https://www.elastic.co/downloads/elasticsearch)
