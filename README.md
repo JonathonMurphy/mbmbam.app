@@ -4,10 +4,14 @@
 
 ### Setup
 
-1. Clone repo
-2. Download [Elasticsearch 7.2.0](https://www.elastic.co/downloads/elasticsearch)
-3. Unzip Elasticsearch and place in the ./db directory
-3. Run node ./db/index.js from the projects root directory
-4. Run ./db/elasticsearch-7.2.0/bin/elasticsearch to start the Elasticsearch service
-5. Run node ./app/server.js
-6. Open your browser and navigate to http://localhost:60900/#search
+⋅⋅* Clone repo
+⋅⋅* Download [Elasticsearch 7.2.0](https://www.elastic.co/downloads/elasticsearch)
+⋅⋅* Unzip Elasticsearch and place in the ./db directory
+⋅⋅* Run ./db/elasticsearch-7.2.0/bin/elasticsearch to start the Elasticsearch service
+⋅⋅* Cd into the ./db directory
+⋅⋅* Run npm install
+⋅⋅* Run node index.js
+⋅⋅* Cd into the app directory
+⋅⋅* Run npm install
+⋅⋅* Run npm start 
+⋅⋅* Open your browser and navigate to http://localhost:60900/#search
