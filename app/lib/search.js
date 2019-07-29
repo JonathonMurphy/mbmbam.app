@@ -5,6 +5,7 @@
 const request = require('request'),
       rp = require('request-promise');
 
+
 module.exports = (app, es) => {
   const url = `http://${es.host}:${es.port}/${es.index}/${es.type}/_search`;
   const responseSize = 15;
@@ -86,6 +87,29 @@ module.exports = (app, es) => {
         }
       }
     };
+    rp({url, json: true, body: esReqBody})
+      .then(esResBody => res.status(200).json(esResBody.hits.hits.map(({_source}) => _source)))
+      .catch(({error}) => res.status(error.status || 502).json(error));
+  });
+
+  /* Random endpoint
+    * Randomly Pull a document from the index
+  */
+  app.get('/api/search/random', (req, res) => {
+    const esReqBody = {
+       size: responseSize,
+       query: {
+          function_score: {
+             functions: [
+                {
+                   random_score: {
+                      seed: new Date()
+                   }
+                }
+             ]
+          }
+       }
+    }
     rp({url, json: true, body: esReqBody})
       .then(esResBody => res.status(200).json(esResBody.hits.hits.map(({_source}) => _source)))
       .catch(({error}) => res.status(error.status || 502).json(error));

@@ -27,6 +27,19 @@ const getQuotes = async (endpoint, query) => {
   }));
 };
 
+const getRandomQuotes = async () => {
+  const esRes = await fetch(`/api/search/random`);
+
+  const esResBody = await esRes.json();
+  console.log(esResBody);
+  return esResBody.map(hit => ({
+    episode: hit.episode,
+    speaker: hit.speaker,
+    quote: hit.quote,
+    download_url: hit.download_url
+  }));
+};
+
 const listQuotes = quotes => {
   resultsElement.innerHTML = templates.listQuotes({quotes})
 };
@@ -49,10 +62,15 @@ const loadResults = async (event) => {
 
 document.addEventListener('DOMContentLoaded', load => {
   const searchButton = (<HTMLElement>document.body.querySelector('#search-button'));
+  const randomButton = (<HTMLElement>document.body.querySelector('#random-button'));
   const searchBar = (<HTMLElement>document.body.querySelector('#query'));
   const filterSelection = (<HTMLSelectElement>document.querySelector('#endpoint'));
   filterSelection.addEventListener('change', loadResults)
   searchButton.addEventListener('click', loadResults);
+  randomButton.addEventListener('click', async event => {
+    const quotes = await getRandomQuotes();
+    listQuotes(quotes);
+  })
   searchBar.addEventListener('keypress', event => {
     if (event.key === 'Enter') {
       loadResults(event);

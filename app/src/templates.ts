@@ -43,6 +43,7 @@ export const searchBar = Handlebars.compile(`
                               </div>
                           </div>
                           <button type="button" id="search-button" class="btn btn-primary" aria-label="Search Button"><span class="fa fa-search" aria-hidden="true"></span></button>
+                          <button type="button" id="random-button" class="btn btn-primary" aria-label="Random Button"><span class="fa" aria-hidden="true">Random</span></button>
                       </div>
                   </div>
               </div>
