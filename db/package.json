@@ -1,0 +1,17 @@
+{
+  "name": "mbmbam-search-db",
+  "version": "1.0.0",
+  "description": "Database and associated scripts for mbmbam-search application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.1.0",
+    "cheerio": "^1.0.0-rc.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}

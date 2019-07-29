@@ -1,0 +1,3 @@
+app/node_modules
+db/node_modules
+db/elasticsearch-7.2.0

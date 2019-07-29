@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+const process = require('process');
+const { Client } = require('@elastic/elasticsearch');
+const client = new Client({ node: 'http://localhost:9200' });
+
+async function run() {
+  const { body } = await client.search({
+    index: 'mbmbam-search',
+    type: 'quote',
+    body: {
+      query: {
+        match: {
+          quote: process.argv[2]
+        }
+      }
+    }
+  })
+
+  body.hits.hits.forEach(function(hit) {
+    console.log(hit)
+    console.log("\n")
+  })
+
+}
+
+run().catch(console.log)

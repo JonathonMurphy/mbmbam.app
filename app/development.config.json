@@ -1,0 +1,9 @@
+{
+  "serviceUrl": "http://mbmbam.example.com:60900",
+  "es": {
+    "host": "localhost",
+    "port": 9200,
+    "index": "mbmbam-search",
+    "type": "quote"
+  }
+}
