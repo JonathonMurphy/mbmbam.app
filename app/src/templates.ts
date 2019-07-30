@@ -20,7 +20,7 @@ export const searchBar = Handlebars.compile(`
   	<div class="row">
   		<div class="col-md-12">
               <div class="input-group" id="adv-search">
-                  <input id="query" type="text" class="form-control"autocapitalize="off" placeholder="What's up you cool baby..." aria-label="Search Box"/>
+                  <input id="query" type="text" class="form-control" autocapitalize="off" placeholder="What's up you cool baby..." aria-label="Search Box"/>
                   <div class="input-group-btn">
                       <div class="btn-group" role="group">
                           <div class="dropdown dropdown-lg">
@@ -43,7 +43,7 @@ export const searchBar = Handlebars.compile(`
                               </div>
                           </div>
                           <button type="button" id="search-button" class="btn btn-primary" aria-label="Search Button"><span class="fa fa-search" aria-hidden="true"></span></button>
-                          <button type="button" id="random-button" class="btn btn-primary" aria-label="Random Button"><span class="fa" aria-hidden="true">Random</span></button>
+                          <button type="button" id="random-button" class="btn btn-primary" aria-label="Random Button"><span class="text" aria-hidden="true">Random</span></button>
                       </div>
                   </div>
               </div>

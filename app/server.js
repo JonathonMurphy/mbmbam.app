@@ -13,7 +13,7 @@ nconf
 const NODE_ENV = nconf.get('NODE_ENV');
 const isDev = NODE_ENV === 'development';
 nconf
-  .defaults({'conf': path.join(__dirname, `${NODE_ENV}.config.json`)})
+  .defaults({'conf': path.join(__dirname, `server.config.json`)})
   .file(nconf.get('conf'));
 
 const serviceUrl = new URL(nconf.get('serviceUrl'));
