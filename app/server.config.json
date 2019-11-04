@@ -1,7 +1,7 @@
 {
   "serviceUrl": "http://mbmbam.example.com:60900",
   "es": {
-    "host": "localhost",
+    "host": "search-mbmbam-jb5nrxn3lk3epnc44z74hgccfu.us-east-2.es.amazonaws.com",
     "port": 9200,
     "index": "mbmbam-search",
     "type": "quote"

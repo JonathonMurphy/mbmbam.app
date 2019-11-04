@@ -7,7 +7,7 @@ const request = require('request'),
 
 
 module.exports = (app, es) => {
-  const url = `http://${es.host}:${es.port}/${es.index}/${es.type}/_search`;
+  const url = `https://${es.host}/${es.index}/_search`;
   const responseSize = 15;
   /* All endpoint
     * Search for quotes by matching a particular query
