@@ -20,7 +20,7 @@ export const searchBar = Handlebars.compile(`
   	<div class="row">
   		<div class="col-md-12">
               <div class="input-group" id="adv-search">
-                  <input id="query" type="text" class="form-control" autocapitalize="off" placeholder="What's up you cool baby..." aria-label="Search Box"/>
+                  <input id="query" type="text" class="form-control" autocapitalize="off" spellcheck="true" placeholder="What's up you cool baby..." aria-label="Search Box"/>
                   <div class="input-group-btn">
                       <div class="btn-group" role="group">
                           <div class="dropdown dropdown-lg">

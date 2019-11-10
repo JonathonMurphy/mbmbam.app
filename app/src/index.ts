@@ -85,7 +85,7 @@ const showView = async () => {
   const [view, ...params] = window.location.hash.split('/');
 
   switch (view) {
-    case '#search':
+    case '':
       logoElement.innerHTML = templates.logo();
       searchElement.innerHTML = templates.searchBar();
       resultsElement.innerHTML = templates.tagLine();
