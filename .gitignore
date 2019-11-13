@@ -1,5 +1,5 @@
 app/node_modules
-app/logs
+app/logs/access.log
 db/node_modules
 db/elasticsearch-7.2.0
 *.pem
