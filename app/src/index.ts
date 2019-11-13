@@ -98,4 +98,4 @@ const showView = async () => {
 };
 
 window.addEventListener('hashchange', showView)
-showView().catch(err => window.location.hash = `#search`)
+showView().catch(err => window.location.hash = ``)
