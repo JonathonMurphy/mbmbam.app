@@ -2,6 +2,7 @@
 const pkg = require('./package.json');
 const {URL} = require('url');
 const path = require('path');
+const fs = require('fs');
 
 // nconf configuration.
 const nconf = require('nconf');
@@ -26,7 +27,8 @@ const morgan = require('morgan');
 
 const app = express();
 
-app.use(morgan('dev'));
+// Sets up log file
+const accessLogStream = fs.createWriteStream(path.join(__dirname, '/logs/access.log'), { flags: 'a' });
 
 app.get('/api/version', (req, res) => res.status(200).json(pkg.version));
 
@@ -35,11 +37,13 @@ if (isDev) {
   const webpack = require('webpack');
   const webpackMiddleware = require('webpack-dev-middleware');
   const webpackConfig = require('./webpack.config.js');
+  app.use(morgan('dev'));
   app.use(webpackMiddleware(webpack(webpackConfig), {
     publicPath: '/',
     stats: {colors: true},
   }));
 } else {
+  app.use(morgan('combined', { stream: accessLogStream }));
   app.use(express.static('dist'));
 }
 
