@@ -115,4 +115,16 @@ module.exports = (app, es) => {
       .catch(({error}) => res.status(error.status || 502).json(error));
   });
 
+
+  // Need to implement a private endpoint for twitter replies
+  app.get('/api/get/reply', (req, res) => {
+    const esReqBody = {
+       size: 1,
+       query: {}
+    }
+    rp({url, json: true, body: esReqBody})
+      .then(esResBody => res.status(200).json(esResBody.hits.hits.map(({_source}) => _source)))
+      .catch(({error}) => res.status(error.status || 502).json(error));
+  });
+
 }
