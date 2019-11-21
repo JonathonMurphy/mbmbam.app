@@ -1,4 +1,4 @@
-#  MBMBaM Quote Search Engine
+#  MBMBaM.app A Search Engine for McElroy Family Quotes
 
 ![Alt text](./app/src/images/Screenshot.png?raw=true "MBMBaM Quote Search")
 
@@ -14,7 +14,7 @@ The API behind the site is publicly accessible. The endpoints follow the structu
 
 ##### Default accepted values for :speaker
 * all
-  * Searches for quotes from all speakers
+  * Searches for quotes frohttps://github.com/JonathonMurphy/mbmbam.appm all speakers
 * mcelroy
   * Searches for quotes from any of the McElroy's
 * audience
