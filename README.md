@@ -14,7 +14,7 @@ The API behind the site is publicly accessible. The endpoints follow the structu
 
 ##### Default accepted values for :speaker
 * all
-  * Searches for quotes frohttps://github.com/JonathonMurphy/mbmbam.appm all speakers
+  * Searches for quotes from all speakers
 * mcelroy
   * Searches for quotes from any of the McElroy's
 * audience
