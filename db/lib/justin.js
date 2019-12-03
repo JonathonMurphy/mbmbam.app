@@ -1,51 +1,24 @@
 #!/usr/bin/env node
+/*jshint esversion: 8 */
 const puppeteer = require('puppeteer'),
+      rp = require('request-promise'),
       cheerio = require('cheerio'),
       path = require('path'),
       fs = require('fs');
 
-// Various regular expersions
-module.exports.regex = {
-  episodeTitle: /MBMBAM\s{1}\d{2,}\:.*/mi,
-  gDoc: /\bPublished on\b|\bListen here on\b|/gi, // could maybe be merged with 'filter'
-  quote: /(?<speaker>(?<threeNames>[A-Z]{1}[a-zA-Z]*\s{1}[A-Z]{1}[a-zA-Z]*\s{1}[A-Z]{1}[a-zA-Z]*\s*)|(?<twoNames>[A-Z]{1}[a-zA-Z]*\s{1}[a-zA-Z]*\s*)|(?<oneName>[A-Z]{1}[a-zA-Z]*\s*))(?<lines>\:\s*.*\s*[^A-Z]*)/gm,
-  filter: /\byahoo\b|\bsponsored\b|\bmbmbam\// BUG: |\bhousekeeping\b|\boriginally released\b|\bepisode\b|\bSuggested talking points\b|\bintro\b|\bMy Brother My Brother and Me\b|\b.*,.*,.*,.*\b/gi,
-  newlines:  /\r?\n|\r/g,
-  timeStamp: /[0-9]{1,2}:+[0-9]{2}/gm,
-}
+const mcelroyRegex = /(griffin|travis|justin|clint)/;
 
-//  Taken from refreshGDocLinks.js
-module.exports.getGDocLinks = async () => {
-  try {
-    // Fires up puppeteer in headless mode, and loads up the page.
-    const browser = await puppeteer.launch({headless: true});
-    const page = await browser.newPage();
-    await page.setViewport({
-        width: 1200,
-        height: 10000
-    });
-    await page.goto('https://docs.google.com/document/d/1x7pn2XZp6UxVUD9oOkuweInUKa66KrcmvGt-ISNxJLE/edit');
-    // Assins all the HTML content of the page to a variable and then give cheerio access to it.
-    let html = await page.content();
-    const $ = cheerio.load(html);
-    // Sets up that array for later use.
-    let linkArray = {
-      urls: []
-    };
-    // Gets all the links on the page
-    let links = $('#kix-appview').find('a.kix-link');
-    // Loops through all the links, pulls the URL out and adds it to the linkArray.
-    links.each(function (i, elem) {
-      if ($(this).attr('href').includes('/edit') !== true) {
-        linkArray.urls.push($(this).attr('href'));
-      }
-    });
-    return linkArray;
-    await browser.close();
-  } catch (error) {
-    console.log(error);
-  }
-}
+// Helper log function
+module.exports.log = (string, file) => {
+  let today = new Date();
+  let dd = String(today.getDate()).padStart(2, '0');
+  let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  let yyyy = today.getFullYear();
+  today = mm + '.' + dd + '.' + yyyy;
+  // 'file' current logs as the variables type instead of it's name
+  console.log(`Logging data to ./logs/${today}.${string}.log.json`)
+  fs.writeFileSync(`./logs/${today}.${string}.log.json`, JSON.stringify(file));
+};
 
 // Taken from sortQuotes.js
 module.exports.sortQuote = (text, object) => {
@@ -58,13 +31,118 @@ module.exports.sortQuote = (text, object) => {
     quoteText = text.match(quoteRegex);
     quoteText = quoteText[0].trim();
     if (object.quotes.hasOwnProperty(speakerName)) {
-      object.quotes[speakerName].push(quoteText)
+      object.quotes[speakerName].push(quoteText);
     } else {
       object.quotes[speakerName] = [quoteText];
     }
   }
+};
 
-}
+module.exports.sortQuoteOld = (text, object) => {
+  if (text.includes('J:') || text.includes('Justin:')) {
+    text = text.replace('J: ', '');
+    text = text.replace('Justin:', '');
+    object.quotes.justin.push(text);
+  } else if (text.includes('T:') || text.includes('Travis:')) {
+    text = text.replace('T: ', '');
+    text = text.replace('Travis:', '');
+    object.quotes.travis.push(text);
+  } else if (text.includes('G:') || text.includes('Griffin:')) {
+    text = text.replace('G: ', '');
+    text = text.replace('Griffin:', '');
+    object.quotes.griffin.push(text);
+  } else if (text.length !== 0) {
+    text = text.replace('[???]: ', '');
+    object.quotes.unattributed.push(text);
+  }
+};
+
+// Taken from createIndexFile.js
+module.exports.createIndexFile = (quotesObj) => {
+  let index = [];
+  // Need to add a section to determine if the speaker is a McElroy, and a section for the episode download/listen to url
+  class IndexObejct {
+    constructor(episode, speaker, quote, url_scraped_from, download_url) {
+      this.index = 'mbmbam-search',
+      this.type = 'quote',
+      this.body = {},
+      this.body.episode = episode,
+      this.body.speaker = speaker,
+      this.body.is_mcelroy = mcelroyRegex.test(speaker),
+      this.body.quote = quote,
+      this.body.url_scraped_from = url_scraped_from,
+      this.body.download_url = download_url;
+    }
+  }
+  quotesObj.episodes.forEach(function(episode) {
+    for (var speaker in episode.quotes) {
+      if (episode.quotes.hasOwnProperty(speaker)) {
+        let speakerQuote = episode.quotes[speaker];
+        speakerQuote.forEach(function(quote) {
+          let newQuote = new IndexObejct (episode.episode, speaker, quote, episode.url, episode.download_url);
+          index.push(newQuote);
+        });
+      }
+    }
+  });
+  return index;
+};
+
+// This is going to need more work
+// Taken from addDownloadUrl.js
+module.exports.getDownloadURL = (quotesObj) => {
+  const epNumRegex = /\d{2,}/;
+  const options = {
+    uri: 'http://mbmbam.libsyn.com/rss',
+    transform: function (body) {
+      return cheerio.load(body, {
+        xml: {
+          withDomLvl1: true,
+          normalizeWhitespace: false,
+          xmlMode: true,
+          decodeEntities: true
+        }
+      });
+    }
+  };
+  regexConstructor = (match) => {
+    const negativeLookBehind = '(?<![0-9])',
+          negativeLookAhead = '(?![0-9])';
+    if (match < 10) {
+      let findEpisodeUrlRegex = `${negativeLookBehind}0${match.toString()}${negativeLookAhead}`;
+      return new RegExp(findEpisodeUrlRegex);
+    } else {
+      let findEpisodeUrlRegex = `${negativeLookBehind}${match.toString()}${negativeLookAhead}`;
+      return new RegExp(findEpisodeUrlRegex);
+    }
+  };
+  rp(options)
+    .then(($) => {
+      let links = [];
+      $('link').each(function() {
+        links.push($(this).text());
+      });
+      quotesObj.episodes.forEach(function(episode) {
+        let eisodeNumber;
+        if (episode.episode.match(epNumRegex) != null) {
+          episodeNumber = Number(episode.episode.match(epNumRegex)[0]);
+        } else {
+          episodeNumber = 'n/a';
+        }
+        let findUrlRegex = regexConstructor(episodeNumber);
+        links.forEach(function(link) {
+          if (link.match(findUrlRegex) != null) {
+            episode.download_url = link;
+          }
+        });
+      });
+    })
+    .then(function() {
+      return quotesObj;
+    })
+    .catch((err) => console.error(err));
+};
+
 
 // takes from quoteObject.json
 module.exports.quoteObject = {
@@ -72,4 +150,11 @@ module.exports.quoteObject = {
   download: "",
   episode: "",
   quotes: {}
-}
+};
+
+module.exports.episodes = {
+  number: undefined,
+  title: "",
+  transcript_url: "",
+  download_url: ""
+};

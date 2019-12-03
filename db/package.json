@@ -11,6 +11,9 @@
   "dependencies": {
     "@elastic/elasticsearch": "^7.1.0",
     "cheerio": "^1.0.0-rc.3",
+    "nodewikiaapi": "^2.0.3",
+    "puppeteer": "^2.0.0",
+    "query-string": "^6.9.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"
   }
