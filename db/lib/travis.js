@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
+
+// travis.js is a custom library for scraping
+// MBMBaM quotes from the web
+
+/* Dependencies */
 const Wikiaapi = require('nodewikiaapi'),
       wiki = 'http://mbmbam.wikia.com',
       puppeteer = require('puppeteer'),
@@ -11,7 +16,7 @@ const Wikiaapi = require('nodewikiaapi'),
       path = require('path'),
       fs = require('fs');
 
-
+// This one works
 module.exports.findTranscripts = (source) => {
   // Locates trancripts from a particular source
   // Returns an array
@@ -44,7 +49,7 @@ module.exports.findTranscripts = (source) => {
           const page = await browser.newPage();
           await page.setViewport({
               width: 1200,
-              height: 10000
+              height: 10000,
           });
           await page.goto('https://docs.google.com/document/d/1x7pn2XZp6UxVUD9oOkuweInUKa66KrcmvGt-ISNxJLE/edit');
           // Assins all the HTML content of the page to a variable and then give cheerio access to it.
@@ -74,10 +79,11 @@ module.exports.findTranscripts = (source) => {
       })();
       break;
     default:
-      console.log('Something went wrong... uh oh')
+      console.log('Something went wrong... uh oh');
   }
 };
 
+// Skip this one for now
 module.exports.checkForNew = (array, log) => {
   switch(source) {
     case 'wikia':
@@ -94,6 +100,7 @@ module.exports.checkForNew = (array, log) => {
   }
 };
 
+// Currently working on this one
 module.exports.getTranscripts = (source, episodeURLs) => {
   // Takes the array of URLs generated from findTranscripts()
   // and makes the required call type per the source argument
@@ -101,66 +108,43 @@ module.exports.getTranscripts = (source, episodeURLs) => {
   let funcName = 'getTranscripts';
   switch(source) {
     case 'wikia':
-      (function (episodeURLs) {
-        // Start of new data structure
-        mbmbamQuotes.episodes = [];
-        episodeURLs.forEach(function (episode, index, array){
-          // bar1.increment();
-          let quoteObject = {
-            url: wiki + episodeURLs[index],
-            // This obtusely long value is taking the URLs ending, removing the '/wiki/' part
-            // decoding with queryString.parse then  getting the key of the resulting object
-            // removing it from an array, and then finally removing the '_' characters and
-            // replacing them with spaces
-            episode: Object.keys(queryString.parse(episodeURLs[index].substr(6)))[0].replace(/_/g, ' '),
-            quotes: {
-              justin: [],
-              travis: [],
-              griffin: [],
-              unattributed: []
-            }
-          };
+      (function () {
+        let episodes = [];
+        episodeURLs.forEach(function (episode){
+          let quoteObject = justin.quoteObject;
+          quoteObject.url = wiki + episode.url;
+          quoteObject.episode = episode.title.replace('/Transcript', '');
           const options = {
-            uri: 'http://mbmbam.wikia.com' + episodeURLs[index],
+            uri: quoteObject.url,
             transform: function (body) {
               return cheerio.load(body);
             }
           };
-
           rp(options)
             .then(function ($) {
-              let episodeName = options.uri.replace('http://mbmbam.wikia.com/wiki/', '');
               $('p, u, i').each(function (i, elem) {
-                // bar1.increment();
-                const regexFilter = /\byahoo\b|\bsponsored\b|\bmbmbam\b|\bhousekeeping\b|\boriginally released\b|\bepisode\b|\bSuggested talking points\b|\bintro\b|\bMy Brother My Brother and Me\b|\b.*,.*,.*,.*\b/gi;
-                const regexTimeStamp = /[0-9]{1,2}:+[0-9]{2}/gm;
                 let textLength = $(this).text().length;
                 let text = $(this).text().replace('"', '');
-
                 let m;
-                if ((m = regexTimeStamp.test(text)) == true) {
+                if ((m = regex.timeStamp.test(text)) == true) {
                   let subStringSelection = text.substring(0,2);
-                  text.replace('subStringSelection', '');
+                  text.replace(subStringSelection, '');
                   return text;
                 }
-                if ((m = regexFilter.test(text)) == false) {
-                  // Filters quotes by brother
-                  sortQuotes(text, quoteObject);
+                if ((m = regex.filter.test(text)) == false) {
+                  justin.sortQuote(text, quoteObject.quotes);
                 }
-              }); // End of Filter Selection Section
-
-              mbmbamQuotes.episodes.push(quoteObject);
-
-            }).then(function(){
-              fs.writeFileSync(wikiaQuotesPath, JSON.stringify(mbmbamQuotes), function(err) {
-                if(err) console.log(err);
               });
+              episodes.push(quoteObject);
+            }).then(function(){
+              // return episodes;
             })
             .catch(function (err) {
               console.error(err);
             });
         });
-
+        justin.log(`${source}.${funcName}`, episodes);
+        return episodes;
       })();
       break;
     case 'gdoc':

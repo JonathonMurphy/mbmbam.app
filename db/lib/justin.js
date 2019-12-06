@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
+
+// justin.js is the helper library
+// for the webscraping portion of this app
+
+/* Dependencies */
 const puppeteer = require('puppeteer'),
       rp = require('request-promise'),
       cheerio = require('cheerio'),
