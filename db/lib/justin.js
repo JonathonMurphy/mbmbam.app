@@ -8,6 +8,7 @@
 const puppeteer = require('puppeteer'),
       rp = require('request-promise'),
       cheerio = require('cheerio'),
+      regex = require('./regex'),
       path = require('path'),
       fs = require('fs');
 
@@ -29,7 +30,8 @@ module.exports.log = (string, file) => {
 module.exports.sortQuote = (text, object) => {
   const speakerRegex = /^[A-Z]{1}[a-zA-Z]*(\s{1}[a-zA-Z]*\:|\:)/;
   const quoteRegex = /[^(\w\:)].*/;
-  speakerName = text.match(speakerRegex);
+  let speakerName = text.match(speakerRegex);
+  console.log(speakerName);
   if (speakerName != null) {
     speakerName = speakerName[0].replace(/\:/, '');
     speakerName = speakerName.toLowerCase();
@@ -72,7 +74,20 @@ module.exports.createIndexFile = (quotesObj) => {
       this.type = 'quote',
       this.body = {},
       this.body.episode = episode,
-      this.body.speaker = speaker,
+      this.body.speaker = sp// takes from quoteObject.json
+module.exports.quoteObject = {
+  url: "",
+  download: "",
+  episode: "",
+  quotes: {}
+};
+
+module.exports.episodes = {
+  number: undefined,
+  title: "",
+  transcript_url: "",
+  download_url: ""
+};eaker,
       this.body.is_mcelroy = mcelroyRegex.test(speaker),
       this.body.quote = quote,
       this.body.url_scraped_from = url_scraped_from,
@@ -150,12 +165,18 @@ module.exports.getDownloadURL = (quotesObj) => {
 
 
 // takes from quoteObject.json
-module.exports.quoteObject = {
-  url: "",
-  download: "",
-  episode: "",
-  quotes: {}
+function Episode (t, tU, dU=undefined) {
+  this.title = t;
+  if (t.match(regex.episodeNumber)) {
+    this.number = Number(t.match(regex.episodeNumber)[0]);
+  } else {
+    this.number = 0;
+  }
+  this.transcript_url = tU;
+  this.download_url = dU;
+  this.quotes = {};
 };
+module.exports.Episode = Episode;
 
 module.exports.episodes = {
   number: undefined,

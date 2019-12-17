@@ -110,39 +110,40 @@ module.exports.getTranscripts = (source, episodeURLs) => {
     case 'wikia':
       (function () {
         let episodes = [];
-        episodeURLs.forEach(function (episode){
-          let quoteObject = justin.quoteObject;
-          quoteObject.url = wiki + episode.url;
-          quoteObject.episode = episode.title.replace('/Transcript', '');
+        episodeURLs.forEach(function (episode) {
+          let episodeObject = new justin.Episode(
+            episode.title.replace('/Transcript', ''), // Title and ep #
+            wiki + episode.url // Ep url 
+          );
           const options = {
-            uri: quoteObject.url,
+            uri: episodeObject.transcript_url,
             transform: function (body) {
               return cheerio.load(body);
             }
           };
-          rp(options)
-            .then(function ($) {
-              $('p, u, i').each(function (i, elem) {
-                let textLength = $(this).text().length;
-                let text = $(this).text().replace('"', '');
-                let m;
-                if ((m = regex.timeStamp.test(text)) == true) {
-                  let subStringSelection = text.substring(0,2);
-                  text.replace(subStringSelection, '');
-                  return text;
-                }
-                if ((m = regex.filter.test(text)) == false) {
-                  justin.sortQuote(text, quoteObject.quotes);
-                }
-              });
-              episodes.push(quoteObject);
-            }).then(function(){
-              // return episodes;
-            })
-            .catch(function (err) {
-              console.error(err);
-            });
-        });
+          // rp(options)
+          //   .then(function ($) {
+          //     $('p, u, i').each(function (i, elem) {
+          //       let textLength = $(this).text().length;
+          //       let text = $(this).text().replace('"', '');
+          //       let m;
+          //       if ((m = regex.timeStamp.test(text)) == true) {
+          //         let subStringSelection = text.substring(0,2);
+          //         text.replace(subStringSelection, '');
+          //         return text;
+          //       }
+          //       if ((m = regex.filter.test(text)) == false) {
+          //         justin.sortQuote(text, episodeObject.quotes);
+          //       }
+          //     });
+          //     episodes.push(episodeObject);
+          //   }).then(function(){
+          //     // return episodes;
+          //   })
+          //   .catch(function (err) {
+          //     console.error(err);
+          //   });
+        }); // End of for loop
         justin.log(`${source}.${funcName}`, episodes);
         return episodes;
       })();
