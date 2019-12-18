@@ -20,8 +20,9 @@ const Wikiaapi = require('nodewikiaapi'),
 module.exports.findTranscripts = (source) => {
   /**
 
-  Locates trancripts url addresses from a particular source
-  Returns an array
+  Locates trancripts URLs addresses for a particular source
+
+  Returns an array of URLs
 
   **/
   let funcName = 'findTranscripts';
@@ -112,6 +113,12 @@ module.exports.getTranscripts = (source, episodeURLs) => {
   and makes the required call type per the source argument
   to pull the page for scraping
 
+  Returns an object contining:
+    title of the episode
+    episode number
+    transcript url
+    html or the body of the document
+
   **/
   let funcName = 'getTranscripts';
   switch(source) {
@@ -132,7 +139,7 @@ module.exports.getTranscripts = (source, episodeURLs) => {
           };
           rp(options)
             .then(function ($) {
-              episodeObject.html = $.html();
+              episodeObject.html = $('#WikiaArticle').html();
               episodes.push(episodeObject);
               itemsProcessed++;
               if(itemsProcessed === array.length) {
