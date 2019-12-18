@@ -18,8 +18,12 @@ const Wikiaapi = require('nodewikiaapi'),
 
 // This one works
 module.exports.findTranscripts = (source) => {
-  // Locates trancripts from a particular source
-  // Returns an array
+  /**
+
+  Locates trancripts url addresses from a particular source
+  Returns an array
+
+  **/
   let funcName = 'findTranscripts';
   switch(source) {
     case 'wikia':
@@ -102,18 +106,23 @@ module.exports.checkForNew = (array, log) => {
 
 // Currently working on this one
 module.exports.getTranscripts = (source, episodeURLs) => {
-  // Takes the array of URLs generated from findTranscripts()
-  // and makes the required call type per the source argument
-  // to pull the page for scraping
+  /**
+
+  Takes the array of URLs generated from findTranscripts()
+  and makes the required call type per the source argument
+  to pull the page for scraping
+
+  **/
   let funcName = 'getTranscripts';
   switch(source) {
     case 'wikia':
       (function () {
         let episodes = [];
-        episodeURLs.forEach(function (episode) {
+        let itemsProcessed = 0;
+        episodeURLs.forEach((episode, index, array) => {
           let episodeObject = new justin.Episode(
             episode.title.replace('/Transcript', ''), // Title and ep #
-            wiki + episode.url // Ep url 
+            wiki + episode.url // Ep url
           );
           const options = {
             uri: episodeObject.transcript_url,
@@ -121,31 +130,19 @@ module.exports.getTranscripts = (source, episodeURLs) => {
               return cheerio.load(body);
             }
           };
-          // rp(options)
-          //   .then(function ($) {
-          //     $('p, u, i').each(function (i, elem) {
-          //       let textLength = $(this).text().length;
-          //       let text = $(this).text().replace('"', '');
-          //       let m;
-          //       if ((m = regex.timeStamp.test(text)) == true) {
-          //         let subStringSelection = text.substring(0,2);
-          //         text.replace(subStringSelection, '');
-          //         return text;
-          //       }
-          //       if ((m = regex.filter.test(text)) == false) {
-          //         justin.sortQuote(text, episodeObject.quotes);
-          //       }
-          //     });
-          //     episodes.push(episodeObject);
-          //   }).then(function(){
-          //     // return episodes;
-          //   })
-          //   .catch(function (err) {
-          //     console.error(err);
-          //   });
-        }); // End of for loop
-        justin.log(`${source}.${funcName}`, episodes);
-        return episodes;
+          rp(options)
+            .then(function ($) {
+              episodeObject.html = $.html();
+              episodes.push(episodeObject);
+              itemsProcessed++;
+              if(itemsProcessed === array.length) {
+                justin.log(`${source}.${funcName}`, episodes);
+                return episodes;
+             }
+            }).catch(function (err) {
+              console.error(err);
+            });
+        });
       })();
       break;
     case 'gdoc':
@@ -164,6 +161,22 @@ module.exports.parseTranscripts = (source) => {
   switch(source) {
     case 'wikia':
       // code block
+      // function ($) {
+      //   $('p, u, i').each(function (i, elem) {
+      //     let textLength = $(this).text().length;
+      //     let text = $(this).text().replace('"', '');
+      //     let m;
+      //     if ((m = regex.timeStamp.test(text)) == true) {
+      //       let subStringSelection = text.substring(0,2);
+      //       text.replace(subStringSelection, '');
+      //       return text;
+      //     }
+      //     if ((m = regex.filter.test(text)) == false) {
+      //       justin.sortQuote(text, episodeObject.quotes);
+      //     }
+      //   });
+      //   episodes.push(episodeObject);
+      // }
       break;
     case 'gdoc':
       // code block

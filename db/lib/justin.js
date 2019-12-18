@@ -28,14 +28,12 @@ module.exports.log = (string, file) => {
 
 // Taken from sortQuotes.js
 module.exports.sortQuote = (text, object) => {
-  const speakerRegex = /^[A-Z]{1}[a-zA-Z]*(\s{1}[a-zA-Z]*\:|\:)/;
-  const quoteRegex = /[^(\w\:)].*/;
-  let speakerName = text.match(speakerRegex);
+  let speakerName = text.match(regex.speaker);
   console.log(speakerName);
   if (speakerName != null) {
     speakerName = speakerName[0].replace(/\:/, '');
     speakerName = speakerName.toLowerCase();
-    quoteText = text.match(quoteRegex);
+    quoteText = text.match(regex.quote);
     quoteText = quoteText[0].trim();
     if (object.quotes.hasOwnProperty(speakerName)) {
       object.quotes[speakerName].push(quoteText);
@@ -166,6 +164,9 @@ module.exports.getDownloadURL = (quotesObj) => {
 
 // takes from quoteObject.json
 function Episode (t, tU, dU=undefined) {
+  // t = title
+  // tU = transcript url
+  // dU = download url
   this.title = t;
   if (t.match(regex.episodeNumber)) {
     this.number = Number(t.match(regex.episodeNumber)[0]);
@@ -174,7 +175,7 @@ function Episode (t, tU, dU=undefined) {
   }
   this.transcript_url = tU;
   this.download_url = dU;
-  this.quotes = {};
+  this.html = '';
 };
 module.exports.Episode = Episode;
 
