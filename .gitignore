@@ -4,4 +4,5 @@ db/node_modules
 db/elasticsearch-7.2.0
 db/test.*
 db/logs/*
+!db/logs/.gitkeep
 *.pem
