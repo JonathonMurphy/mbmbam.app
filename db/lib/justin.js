@@ -15,15 +15,36 @@ const puppeteer = require('puppeteer'),
 const mcelroyRegex = /(griffin|travis|justin|clint)/;
 
 // Helper log function
-module.exports.log = (string, file) => {
+module.exports.log = (string, data, ext='json') => {
+  /*
+
+  string = title of the log file
+  data = data to be logged to file
+  ext = file extension
+
+  */
+
+  // Get todays date
   let today = new Date();
   let dd = String(today.getDate()).padStart(2, '0');
   let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
   let yyyy = today.getFullYear();
   today = mm + '.' + dd + '.' + yyyy;
-  // 'file' current logs as the variables type instead of it's name
-  console.log(`Logging data to ./logs/${today}.${string}.log.json`)
-  fs.writeFileSync(`./logs/${today}.${string}.log.json`, JSON.stringify(file));
+
+  // Log action to console
+  console.log(`Logging data to ./logs/${today}.${string}.log.${ext}`)
+
+  // Execute action of logging data to file
+  switch(ext) {
+    case 'json':
+      fs.writeFileSync(`./logs/${today}.${string}.log.${ext}`, JSON.stringify(data));
+      break;
+    default:
+      fs.writeFileSync(`./logs/${today}.${string}.log.${ext}`, data);
+  }
+  // TODO: Add callback functionality
+  // // Execute the callback function if one was passed
+  // callback();
 };
 
 // Taken from sortQuotes.js
@@ -163,19 +184,27 @@ module.exports.getDownloadURL = (quotesObj) => {
 
 
 // takes from quoteObject.json
-function Episode (t, tU, dU=undefined) {
-  // t = title
-  // tU = transcript url
-  // dU = download url
-  this.title = t;
-  if (t.match(regex.episodeNumber)) {
-    this.number = Number(t.match(regex.episodeNumber)[0]);
+function Episode (t, tU, html=null, dU=null) {
+  /*
+    // t = title
+    // tU = transcript url
+    // dU = download url
+  */
+  if (t !== null) {
+    t = t.toString();
+    this.title = t;
+    if (t.match(regex.episodeNumber)) {
+      this.number = Number(t.match(regex.episodeNumber)[0]);
+    } else {
+      this.number = null;
+    }
   } else {
-    this.number = 0;
+    this.title = null;
+    this.number = null;
   }
   this.transcript_url = tU;
   this.download_url = dU;
-  this.html = '';
+  this.html = html;
 };
 module.exports.Episode = Episode;
 

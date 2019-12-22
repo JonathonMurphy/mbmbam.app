@@ -90,7 +90,7 @@ const quoteRegex = /(?<speaker>(?<threeNames>[A-Z]{1}[a-zA-Z]*\s{1}[A-Z]{1}[a-zA
         let regexMatches = {
           matches: []
         }
-        episodeTitle = str.match(regexEpisodeTitle);
+        let episodeTitle = str.match(regexEpisodeTitle);
         if (episodeTitle != null) {
           quoteObject.episode = episodeTitle[0].replace(/MBMBAM/i, 'Episode');
         } else {

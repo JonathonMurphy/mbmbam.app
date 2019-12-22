@@ -3,11 +3,12 @@
 
 // Various regular expersions
 module.exports = {
-  episodeTitle: /MBMBAM\s{1}\d{2,}\:.*/mi,
+  episodeTitle: /MBMBAM\s{1}\d{2,}\:.*/i,
   episodeNumber: /\d{2,}/,
   transcript: /transcript/i,
   name: /[A-Z]{1}[a-z]{1,6}\:|\b^Justin\b|\b^Travis\b|\b^Griffin\b|\bClint\b/g,
   mcelroy: /(griffin|travis|justin|clint)/,
+  header : /MBMBAM\s{1}\d{2,}\:.*|My Brother, My Brother and Me:.*/i,
   gDoc: /\bPublished on\b|\bListen here on\b|/gi, // could maybe be merged with 'filter'
   superQuote: /(?<speaker>(?<threeNames>[A-Z]{1}[a-zA-Z]*\s{1}[A-Z]{1}[a-zA-Z]*\s{1}[A-Z]{1}[a-zA-Z]*\s*)|(?<twoNames>[A-Z]{1}[a-zA-Z]*\s{1}[a-zA-Z]*\s*)|(?<oneName>[A-Z]{1}[a-zA-Z]*\s*))(?<lines>\:\s*.*\s*[^A-Z]*)/gm,
   speaker: /^[A-Z]{1}[a-zA-Z]*(\s{1}[a-zA-Z]*\:|\:)/,

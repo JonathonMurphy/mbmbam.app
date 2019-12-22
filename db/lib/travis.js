@@ -126,7 +126,11 @@ module.exports.getTranscripts = (source, episodeURLs) => {
       (function () {
         let episodes = [];
         let itemsProcessed = 0;
-        episodeURLs.forEach((episode, index, array) => {
+        episodeURLs.forEach((episode, i, array) => {
+          console.log(`
+            Scrapping ${source} page ${i+1} / ${episodeURLs.length}\n
+            URL: ${episode.url}
+            `);
           let episodeObject = new justin.Episode(
             episode.title.replace('/Transcript', ''), // Title and ep #
             wiki + episode.url // Ep url
@@ -153,7 +157,57 @@ module.exports.getTranscripts = (source, episodeURLs) => {
       })();
       break;
     case 'gdoc':
-      // code block
+      (async () => {
+        try {
+          let episodes = [];
+          // Fires up puppeteer in headless mode
+          const browser = await puppeteer.launch({headless: true});
+          // Loop over all the array items
+          for (i=0; i<episodeURLs.length; i++) {
+            // Open new page and load current url from the arracy in puppeteer
+            const page = await browser.newPage();
+            await page.setViewport({
+                width: 1200,
+                height: 10000
+            });
+            await page.goto(episodeURLs[i]);
+            // Assigns all the HTML content of the page to a variable and then give cheerio access to it.
+            const html = await page.content();
+            const $ = cheerio.load(html);
+            // TODO: I feel like this is overkill to pull the title from the episode
+            // let body;
+            // $('body').children().each(function(){
+            //   body += $(this).text() + ' \n\r';
+            // });
+            // justin.log('gDocTitle' + i, body.match(regex.episodeTitle), 'txt');
+            let header = $('#header').text();
+            console.log(`
+              Scrapping ${source} page ${i+1} / ${episodeURLs.length}
+              URL: ${episodeURLs[i]}
+              Title: ${header}
+              `);
+            // justin.log('gDocTitle' + i, header.match(regex.header)[0], 'txt');
+            // Setup data structure
+            let episodeObject = new justin.Episode(
+              header.match(regex.header),
+              episodeURLs[i],
+              $('#contents').html()
+            );
+            episodes.push(episodeObject);
+            //  Close current page
+            await page.close();
+          } // End for loop
+          await browser.close();
+          justin.log(`${source}.${funcName}`, episodes);
+          return episodes;
+        } catch (error) {
+          // TODO: Find some way to close the browser on errors
+          // honestly we need to impletement better error catching in general
+          // but that will probably be done in a different fork
+          // await browser.close();
+          console.log(error);
+        }
+      })();
       break;
     case 'pdf':
       // code block

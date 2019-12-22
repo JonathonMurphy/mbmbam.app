@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
-console.log("We bout to get some data ya'll" + "\n");
+// console.log("We bout to get some data ya'll" + "\n");
 
 /* Dependencies */
 const queryString = require('query-string'),
@@ -19,8 +19,8 @@ const queryString = require('query-string'),
 const gdocLinks = require('./logs/12.02.2019.gdoc_findTranscripts.log.json');
 const wikiaLinks = require('./logs/12.02.2019.wikia_findTranscripts.log.json');
 
-const repositories = ['wikia'/*, 'gdoc', 'pdf'*/];
+const repositories = ['gdoc'];
 
 repositories.forEach(function (repo) {
-  travis.getTranscripts(repo, wikiaLinks);
+  travis.getTranscripts(repo, gdocLinks);
 })
