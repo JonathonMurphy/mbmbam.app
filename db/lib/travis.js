@@ -28,7 +28,7 @@ module.exports.findTranscripts = (source) => {
   let funcName = 'findTranscripts';
   switch(source) {
     case 'wikia':
-      (function () {
+      (async () => {
         let array = [];
         mywiki.getArticlesList({
             limit: 1000
@@ -50,7 +50,7 @@ module.exports.findTranscripts = (source) => {
         try {
           let array = [];
           // Fires up puppeteer in headless mode, and loads up the page.
-          const browser = await puppeteer.launch({headless: true});
+          const browser = await puppeteer.launch({headless: false});
           const page = await browser.newPage();
           await page.setViewport({
               width: 1200,
@@ -106,7 +106,7 @@ module.exports.checkForNew = (array, log) => {
 };
 
 // Currently working on this one
-module.exports.getTranscripts = (source, episodeURLs) => {
+module.exports.getTranscripts = (source, episodeURLs, episodes) => {
   /**
 
   Takes the array of URLs generated from findTranscripts()
@@ -117,6 +117,7 @@ module.exports.getTranscripts = (source, episodeURLs) => {
     title of the episode
     episode number
     transcript url
+    download url
     html or the body of the document
 
   **/
@@ -124,12 +125,13 @@ module.exports.getTranscripts = (source, episodeURLs) => {
   switch(source) {
     case 'wikia':
       (function () {
-        let episodes = [];
+        // let episodes = [];
         let itemsProcessed = 0;
         episodeURLs.forEach((episode, i, array) => {
           console.log(`
             Scrapping ${source} page ${i+1} / ${episodeURLs.length}\n
             URL: ${episode.url}
+            Title: ${episode.title.replace('/Transcript', '')}
             `);
           let episodeObject = new justin.Episode(
             episode.title.replace('/Transcript', ''), // Title and ep #
@@ -159,7 +161,7 @@ module.exports.getTranscripts = (source, episodeURLs) => {
     case 'gdoc':
       (async () => {
         try {
-          let episodes = [];
+          // let episodes = [];
           // Fires up puppeteer in headless mode
           const browser = await puppeteer.launch({headless: true});
           // Loop over all the array items
@@ -236,7 +238,6 @@ module.exports.parseTranscripts = (source) => {
       //       justin.sortQuote(text, episodeObject.quotes);
       //     }
       //   });
-      //   episodes.push(episodeObject);
       // }
       break;
     case 'gdoc':
