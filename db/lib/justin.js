@@ -14,8 +14,8 @@ const puppeteer = require('puppeteer'),
 
 const mcelroyRegex = /(griffin|travis|justin|clint)/;
 
-// Helper log function
-module.exports.log = (string, data, ext='json') => {
+// Helper file writing function
+module.exports.write = (string, data, ext='json') => {
   /*
 
   string = title of the log file
@@ -46,6 +46,21 @@ module.exports.log = (string, data, ext='json') => {
   // // Execute the callback function if one was passed
   // callback();
 };
+
+module.exports.log = (text) => {
+  // Get todays date
+  let today = new Date();
+  let dd = String(today.getDate()).padStart(2, '0');
+  let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  let yyyy = today.getFullYear();
+  today = mm + '.' + dd + '.' + yyyy;
+  // Console log the data
+  console.log(text);
+  // Write data to disk for future troubleshooting
+  // This may have to be a stream so that it doesnn't
+  // continuously overwrite itself 
+  fs.writeFile(`./${today}.log`, text)
+}
 
 // Taken from sortQuotes.js
 module.exports.sortQuote = (text, object) => {
@@ -93,103 +108,39 @@ module.exports.createIndexFile = (quotesObj) => {
       this.type = 'quote',
       this.body = {},
       this.body.episode = episode,
-      this.body.speaker = sp// takes from quoteObject.json
-module.exports.quoteObject = {
-  url: "",
-  download: "",
-  episode: "",
-  quotes: {}
-};
-
-module.exports.episodes = {
-  number: undefined,
-  title: "",
-  transcript_url: "",
-  download_url: ""
-};eaker,
-      this.body.is_mcelroy = mcelroyRegex.test(speaker),
-      this.body.quote = quote,
-      this.body.url_scraped_from = url_scraped_from,
-      this.body.download_url = download_url;
-    }
-  }
-  quotesObj.episodes.forEach(function(episode) {
-    for (var speaker in episode.quotes) {
-      if (episode.quotes.hasOwnProperty(speaker)) {
-        let speakerQuote = episode.quotes[speaker];
-        speakerQuote.forEach(function(quote) {
-          let newQuote = new IndexObejct (episode.episode, speaker, quote, episode.url, episode.download_url);
-          index.push(newQuote);
-        });
-      }
-    }
-  });
-  return index;
-};
-
-// This is going to need more work
-// Taken from addDownloadUrl.js
-module.exports.getDownloadURL = (quotesObj) => {
-  const epNumRegex = /\d{2,}/;
-  const options = {
-    uri: 'http://mbmbam.libsyn.com/rss',
-    transform: function (body) {
-      return cheerio.load(body, {
-        xml: {
-          withDomLvl1: true,
-          normalizeWhitespace: false,
-          xmlMode: true,
-          decodeEntities: true
+      this.body.speaker = speaker,
+            this.body.is_mcelroy = mcelroyRegex.test(speaker),
+            this.body.quote = quote,
+            this.body.url_scraped_from = url_scraped_from,
+            this.body.download_url = download_url;
+          }
         }
-      });
-    }
-  };
-  regexConstructor = (match) => {
-    const negativeLookBehind = '(?<![0-9])',
-          negativeLookAhead = '(?![0-9])';
-    if (match < 10) {
-      let findEpisodeUrlRegex = `${negativeLookBehind}0${match.toString()}${negativeLookAhead}`;
-      return new RegExp(findEpisodeUrlRegex);
-    } else {
-      let findEpisodeUrlRegex = `${negativeLookBehind}${match.toString()}${negativeLookAhead}`;
-      return new RegExp(findEpisodeUrlRegex);
-    }
-  };
-  rp(options)
-    .then(($) => {
-      let links = [];
-      $('link').each(function() {
-        links.push($(this).text());
-      });
-      quotesObj.episodes.forEach(function(episode) {
-        let eisodeNumber;
-        if (episode.episode.match(epNumRegex) != null) {
-          episodeNumber = Number(episode.episode.match(epNumRegex)[0]);
-        } else {
-          episodeNumber = 'n/a';
-        }
-        let findUrlRegex = regexConstructor(episodeNumber);
-        links.forEach(function(link) {
-          if (link.match(findUrlRegex) != null) {
-            episode.download_url = link;
+        quotesObj.episodes.forEach(function(episode) {
+          for (var speaker in episode.quotes) {
+            if (episode.quotes.hasOwnProperty(speaker)) {
+              let speakerQuote = episode.quotes[speaker];
+              speakerQuote.forEach(function(quote) {
+                let newQuote = new IndexObejct (episode.episode, speaker, quote, episode.url, episode.download_url);
+                index.push(newQuote);
+              });
+            }
           }
         });
-      });
-    })
-    .then(function() {
-      return quotesObj;
-    })
-    .catch((err) => console.error(err));
-};
+        return index;
+      };
 
 
-// takes from quoteObject.json
-function Episode (t, tU, html=null, dU=null) {
+function Episode (s, t, tU, html=null, dU=null) {
   /*
-    // t = title
-    // tU = transcript url
-    // dU = download url
+    Object constructor to house all the over-arching
+    details for a given episode transcript
+
+        s = source
+        t = title
+        tU = transcript url
+        dU = download url
   */
+  this.source = s;
   if (t !== null) {
     t = t.toString();
     this.title = t;
@@ -204,13 +155,7 @@ function Episode (t, tU, html=null, dU=null) {
   }
   this.transcript_url = tU;
   this.download_url = dU;
+  this.quotes = {};
   this.html = html;
 };
 module.exports.Episode = Episode;
-
-module.exports.episodes = {
-  number: undefined,
-  title: "",
-  transcript_url: "",
-  download_url: ""
-};
