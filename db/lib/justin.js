@@ -58,7 +58,7 @@ module.exports.log = (text) => {
   console.log(text);
   // Write data to disk for future troubleshooting
   // This may have to be a stream so that it doesnn't
-  // continuously overwrite itself 
+  // continuously overwrite itself
   fs.writeFile(`./${today}.log`, text)
 }
 
@@ -130,7 +130,7 @@ module.exports.createIndexFile = (quotesObj) => {
       };
 
 
-function Episode (s, t, tU, html=null, dU=null) {
+function Episode (s, t, tU, pC=null, html=null, dU=null) {
   /*
     Object constructor to house all the over-arching
     details for a given episode transcript
@@ -138,6 +138,7 @@ function Episode (s, t, tU, html=null, dU=null) {
         s = source
         t = title
         tU = transcript url
+        pC= podcast
         dU = download url
   */
   this.source = s;
@@ -154,6 +155,7 @@ function Episode (s, t, tU, html=null, dU=null) {
     this.number = null;
   }
   this.transcript_url = tU;
+  this.podcast = pC;
   this.download_url = dU;
   this.quotes = {};
   this.html = html;
