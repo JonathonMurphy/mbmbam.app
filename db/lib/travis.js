@@ -16,6 +16,13 @@ const Wikiaapi = require('nodewikiaapi'),
       path = require('path'),
       fs = require('fs');
 
+module.exports.scratchpad = (data) => {
+  new Promise((resolve, reject) => {
+    console.log(data);
+    resolve(data);
+  });
+};
+
 // This one works
 module.exports.findTranscripts = (source) => {
   /**
@@ -28,90 +35,104 @@ module.exports.findTranscripts = (source) => {
     transcript url
 
   **/
-  let funcName = 'findTranscripts';
-  switch(source) {
-    case 'wikia':
-      (async () => {
-        let array = [];
-        mywiki.getArticlesList({
-            limit: 1000
-        }).then(function (data) {
-          data.items.forEach(function (item, i) {
-            if (regex.transcript.test(item.title)) {
-              let addressObject = new justin.Episode(
-                source,
-                item.title.replace('/Transcript', ''),
-                wiki + item.url
-              )
-              array.push(addressObject);
-            }
-          });
-          justin.write(`${source}.${funcName}`, array);
-          return array;
-        }).catch(function (error) {
-          console.error(error);
-        });
-      })();
-      break;
-    case 'gdoc':
-      (async () => {
-        try {
+  new Promise(function (resolve, reject) {
+    let funcName = 'findTranscripts';
+    switch(source) {
+      case 'wikia':
+        console.log(`${funcName}(${source}) fired.`);
+        (async () => {
           let array = [];
-          // Fires up puppeteer in headless mode, and loads up the page.
-          const browser = await puppeteer.launch({headless: true});
-          const page = await browser.newPage();
-          await page.setViewport({
-              width: 1200,
-              height: 10000,
+          mywiki.getArticlesList({
+              limit: 1000
+          }).then(function (data) {
+            data.items.forEach(function (item, i) {
+              if (regex.transcript.test(item.title)) {
+                let addressObject = new justin.Episode(
+                  source,
+                  item.title.replace('/Transcript', ''),
+                  wiki + item.url
+                )
+                array.push(addressObject);
+              }
+            });
+            justin.write(`${source}.${funcName}`, array);
+            resolve(array);
+          }).catch(function (error) {
+            console.error(error);
+            reject(error);
           });
-          await page.goto('https://docs.google.com/document/d/1x7pn2XZp6UxVUD9oOkuweInUKa66KrcmvGt-ISNxJLE/edit');
-          // Assins all the HTML content of the page to a variable and then give cheerio access to it.
-          let html = await page.content();
-          const $ = cheerio.load(html);
-          // Gets all the links on the page
-          let links = $('#kix-appview').find('a.kix-link');
-          // Loops through all the links, pulls the URL out and adds it to the array.
-          links.each(function (i, elem) {
-            if ($(this).attr('href').includes('/edit') !== true) {
-              let addressObject = new justin.Episode(
-                source,
-                $(this).children('span').text(),
-                $(this).attr('href')
-              );
-              array.push(addressObject);
-            }
-          });
-          await browser.close();
+        })();
+        break;
+      case 'gdoc':
+        console.log(`${funcName}(${source}) fired.`);
+        (async () => {
+          try {
+            let array = [];
+            // Fires up puppeteer in headless mode, and loads up the page.
+            const browser = await puppeteer.launch({headless: true});
+            const page = await browser.newPage();
+            await page.setViewport({
+                width: 1200,
+                height: 10000,
+            });
+            await page.goto('https://docs.google.com/document/d/1x7pn2XZp6UxVUD9oOkuweInUKa66KrcmvGt-ISNxJLE/edit');
+            // Assins all the HTML content of the page to a variable and then give cheerio access to it.
+            let html = await page.content();
+            const $ = cheerio.load(html);
+            // Gets all the links on the page
+            let links = $('#kix-appview').find('a.kix-link');
+            // Loops through all the links, pulls the URL out and adds it to the array.
+            links.each(function (i, elem) {
+              if ($(this).attr('href').includes('/edit') !== true) {
+                let addressObject = new justin.Episode(
+                  source,
+                  $(this).children('span').text(),
+                  $(this).attr('href')
+                );
+                array.push(addressObject);
+              }
+            });
+            await browser.close();
+            justin.write(`${source}.${funcName}`, array);
+            resolve(array);
+          } catch (error) {
+            console.log(error);
+            reject(error);
+          }
+        })();
+        break;
+      case 'pdf':
+        console.log(`${funcName}(${source}) fired.`);
+        (async () => {
+          let array = [];
           justin.write(`${source}.${funcName}`, array);
-          return array;
-        } catch (error) {
-          console.log(error);
-        }
-      })();
-      break;
-    case 'pdf':
-      (function () {
-        let array = [];
-        justin.write(`${source}.${funcName}`, array);
-        return array;
-      })();
-      break;
-    default:
-      console.log('Something went wrong... uh oh');
-  }
+          resolve(array);
+        })();
+        break;
+      default:
+        console.log('Something went wrong... uh oh');
+    }
+  });
 };
 
 // Skip this one for now
-module.exports.checkForNew = (array, log) => {
+module.exports.checkForNew = (source, array=null, log=null) => {
+  let funcName = 'checkForNew';
   switch(source) {
     case 'wikia':
       // code block
+      console.log(`${funcName}(${source}) fired.`);
+      return true;
       break;
     case 'gdoc':
       // code block
+      console.log(`${funcName}(${source}) fired.`);
+      return true;
       break;
     case 'pdf':
       // code block
+      console.log(`${funcName}(${source}) fired.`);
+      return true;
       break;
     default:
       // code block
@@ -130,79 +151,84 @@ module.exports.getTranscripts = (source, episodeObjects) => {
   Documentation goes here!
 
   **/
-  let funcName = 'getTranscripts';
-  switch(source) {
-    case 'wikia':
-      (async () => {
-        let itemsProcessed = 0;
-        episodeObjects.forEach((episode, i, array) => {
-          console.log(`
-            Scrapping ${source} page ${i+1} / ${episodeObjects.length}\n
-            URL: ${episode.transcript_url}
-            Title: ${episode.title}
-            `);
-          const options = {
-            uri: episode.transcript_url,
-            transform: function (body) {
-              return cheerio.load(body);
-            }
-          };
-          rp(options)
-            .then(function ($) {
-              episode.html = $('#WikiaArticle').html();
-              itemsProcessed++;
-              if(itemsProcessed === array.length) {
-                justin.write(`${source}.${funcName}`, episodeObjects);
-                return episodeObjects;
-             }
-            }).catch(function (err) {
-              console.error(err);
-            });
-        });
-      })();
-      break;
-    case 'gdoc':
-      (async () => {
-        // Fires up puppeteer in headless mode
-        const browser = await puppeteer.launch({headless: true});
-        try {
-          // Loop over all the array items
-          for (i=0; i<episodeObjects.length; i++) {
-            // Open new page and load current url from the arracy in puppeteer
-            const page = await browser.newPage();
-            await page.setViewport({
-                width: 1200,
-                height: 10000
-            });
-            await page.goto(episodeObjects[i].transcript_url);
-            // Assigns all the HTML content of the page to a variable and then give cheerio access to it.
-            const html = await page.content();
-            const $ = cheerio.load(html);
+  new Promise(function (resolve, reject) {
+    let funcName = 'getTranscripts';
+    switch(source) {
+      case 'wikia':
+        console.log(`${funcName}(${source}) fired.`);
+        (async () => {
+          let itemsProcessed = 0;
+          episodeObjects.forEach((episode, i, array) => {
             console.log(`
-              Scrapping ${source} page ${i+1} / ${episodeObjects.length}
-              URL: ${episodeObjects[i].transcript_url}
-              Title: ${episodeObjects[i].title}
+              Scrapping ${source} page ${i+1} / ${episodeObjects.length}\n
+              URL: ${episode.transcript_url}
+              Title: ${episode.title}
               `);
-            // Add the pages HTML to the episodeObject
-            episodeObjects[i].html = $('#contents').html()
-            //  Close current page
-            await page.close();
-          } // End for loop
-          await browser.close();
-          justin.write(`${source}.${funcName}`, episodeObjects);
-          return episodeObjects;
-        } catch (error) {
-          await browser.close();
-          console.log(error);
-        }
-      })();
-      break;
-    case 'pdf':
-      // code block
-      break;
-    default:
-      // code block
-  }
+            const options = {
+              uri: episode.transcript_url,
+              transform: function (body) {
+                return cheerio.load(body);
+              }
+            };
+            rp(options)
+              .then(function ($) {
+                episode.html = $('#WikiaArticle').html();
+                itemsProcessed++;
+                if(itemsProcessed === array.length) {
+                  justin.write(`${source}.${funcName}`, episodeObjects);
+                  resolve(episodeObjects);
+               }
+              }).catch(function (err) {
+                console.error(err);
+              });
+          });
+        })();
+        break;
+      case 'gdoc':
+        console.log(`${funcName}(${source}) fired.`);
+        (async () => {
+          // Fires up puppeteer in headless mode
+          const browser = await puppeteer.launch({headless: true});
+          try {
+            // Loop over all the array items
+            for (i=0; i<episodeObjects.length; i++) {
+              // Open new page and load current url from the arracy in puppeteer
+              const page = await browser.newPage();
+              await page.setViewport({
+                  width: 1200,
+                  height: 10000
+              });
+              await page.goto(episodeObjects[i].transcript_url);
+              // Assigns all the HTML content of the page to a variable and then give cheerio access to it.
+              const html = await page.content();
+              const $ = cheerio.load(html);
+              console.log(`
+                Scrapping ${source} page ${i+1} / ${episodeObjects.length}
+                URL: ${episodeObjects[i].transcript_url}
+                Title: ${episodeObjects[i].title}
+                `);
+              // Add the pages HTML to the episodeObject
+              episodeObjects[i].html = $('#contents').html()
+              //  Close current page
+              await page.close();
+            } // End for loop
+            await browser.close();
+            justin.write(`${source}.${funcName}`, episodeObjects);
+            resolve(episodeObjects);
+          } catch (error) {
+            await browser.close();
+            console.log(error);
+          }
+        })();
+        break;
+      case 'pdf':
+        console.log(`${funcName}(${source}) fired.`);
+        // code block
+        break;
+      default:
+        // code block
+    }
+  })
 };
 
 // This is going to need more work
@@ -260,11 +286,11 @@ module.exports.getDownloadURL = (quotesObj) => {
     .catch((err) => console.error(err));
 };
 
-module.exports.parseTranscripts = (source) => {
+module.exports.parseTranscripts = (rawTranscriptsObj) => {
   let funcName = 'parseTranscripts';
   switch(source) {
     case 'wikia':
-      // code block
+      /*
       // function ($) {
       //   $('p, u, i').each(function (i, elem) {
       //     let textLength = $(this).text().length;
@@ -280,12 +306,16 @@ module.exports.parseTranscripts = (source) => {
       //     }
       //   });
       // }
+      */
+      console.log(`${funcName}() fired with ${rawTranscriptsObj.source} as the source.`);
       break;
     case 'gdoc':
       // code block
+      console.log(`${funcName}() fired with ${rawTranscriptsObj.source} as the source.`);
       break;
     case 'pdf':
       // code block
+      console.log(`${funcName}() fired with ${rawTranscriptsObj.source} as the source.`);
       break;
     default:
       // code block

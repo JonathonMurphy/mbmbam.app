@@ -24,11 +24,15 @@ const justin = require('./lib/justin'),
 
 
 /* Global Variables */
-const repos = ['gdoc'];
-const episodes = JSON.parse(fs.readFileSync('./logs/12.22.2019.gdoc.findTranscripts.log.json'));
+const repo = ['wikia'];
+let gotten;
 
-(async () => {
-  for (let repo of repos) {
-    let readyForParsing = await travis.getTranscripts(repo, episodes);
+
+(async() => {
+  let found = await travis.findTranscripts('wikia');
+  if (travis.checkForNew('wikia')) {
+    gotten += await travis.getTranscripts('wikia', found);
   }
+  justin.write('gotten', gotten)
+
 })();
