@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
 
-// justin.js is the helper library
-// for the webscraping portion of this app
+/*
+  justin.js is the helper library
+  for the backend portion of this app
+/*
 
 /* Dependencies */
 const puppeteer = require('puppeteer'),
@@ -12,9 +14,10 @@ const puppeteer = require('puppeteer'),
       path = require('path'),
       fs = require('fs');
 
+/* Private Variables */
 const mcelroyRegex = /(griffin|travis|justin|clint)/;
 
-// Helper file writing function
+/* Exported functions */
 module.exports.write = (string, data, ext='json') => {
   /*
 
@@ -46,7 +49,6 @@ module.exports.write = (string, data, ext='json') => {
   // // Execute the callback function if one was passed
   // callback();
 };
-
 module.exports.log = (text) => {
   // Get todays date
   let today = new Date();
@@ -61,9 +63,8 @@ module.exports.log = (text) => {
   // continuously overwrite itself
   fs.writeFile(`./${today}.log`, text)
 }
-
-// Taken from sortQuotes.js
 module.exports.sortQuote = (text, object) => {
+  // Taken from sortQuotes.js
   let speakerName = text.match(regex.speaker);
   console.log(speakerName);
   if (speakerName != null) {
@@ -78,7 +79,6 @@ module.exports.sortQuote = (text, object) => {
     }
   }
 };
-
 module.exports.sortQuoteOld = (text, object) => {
   if (text.includes('J:') || text.includes('Justin:')) {
     text = text.replace('J: ', '');
@@ -97,9 +97,8 @@ module.exports.sortQuoteOld = (text, object) => {
     object.quotes.unattributed.push(text);
   }
 };
-
-// Taken from createIndexFile.js
 module.exports.createIndexFile = (quotesObj) => {
+  // Taken from createIndexFile.js
   let index = [];
   // Need to add a section to determine if the speaker is a McElroy, and a section for the episode download/listen to url
   class IndexObejct {
@@ -128,8 +127,6 @@ module.exports.createIndexFile = (quotesObj) => {
         });
         return index;
       };
-
-
 function Episode (s, t, tU, pC=null, html=null, dU=null) {
   /*
     Object constructor to house all the over-arching

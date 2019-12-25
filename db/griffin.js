@@ -33,6 +33,6 @@ let gotten;
   if (travis.checkForNew('wikia')) {
     gotten += await travis.getTranscripts('wikia', found);
   }
-  justin.write('gotten', gotten)
+  justin.write('gotten', JSON.stringify(gotten))
 
 })();

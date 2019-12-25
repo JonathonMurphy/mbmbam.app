@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
 
-// travis.js is a custom library for scraping
-// MBMBaM quotes from the web
+/*
+  travis.js is a custom library for scraping
+  MBMBaM quotes from the web
+/*
 
 /* Dependencies */
 const Wikiaapi = require('nodewikiaapi'),
@@ -12,18 +14,23 @@ const Wikiaapi = require('nodewikiaapi'),
       rp = require('request-promise'),
       cheerio = require('cheerio'),
       justin = require('./justin'),
-      regex = require('./regex'),
-      path = require('path'),
-      fs = require('fs');
+      regex = require('./regex');
 
-module.exports.scratchpad = (data) => {
-  new Promise((resolve, reject) => {
-    console.log(data);
-    resolve(data);
+/* Exported Functions */
+module.exports.scratchpad = async (data) => {
+  /*
+
+  Scratch function to test out functionality
+  when needed
+
+  */
+  return new Promise((resolve, reject) => {
+    setTimeout(function() {
+      // console.log(data)
+     resolve(data);
+   }, 3000);
   });
 };
-
-// This one works
 module.exports.findTranscripts = (source) => {
   /**
 
@@ -35,11 +42,10 @@ module.exports.findTranscripts = (source) => {
     transcript url
 
   **/
-  new Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let funcName = 'findTranscripts';
     switch(source) {
       case 'wikia':
-        console.log(`${funcName}(${source}) fired.`);
         (async () => {
           let array = [];
           mywiki.getArticlesList({
@@ -64,7 +70,6 @@ module.exports.findTranscripts = (source) => {
         })();
         break;
       case 'gdoc':
-        console.log(`${funcName}(${source}) fired.`);
         (async () => {
           try {
             let array = [];
@@ -102,7 +107,6 @@ module.exports.findTranscripts = (source) => {
         })();
         break;
       case 'pdf':
-        console.log(`${funcName}(${source}) fired.`);
         (async () => {
           let array = [];
           justin.write(`${source}.${funcName}`, array);
@@ -114,50 +118,45 @@ module.exports.findTranscripts = (source) => {
     }
   });
 };
-
-// Skip this one for now
 module.exports.checkForNew = (source, array=null, log=null) => {
   let funcName = 'checkForNew';
   switch(source) {
     case 'wikia':
       // code block
-      console.log(`${funcName}(${source}) fired.`);
       return true;
       break;
     case 'gdoc':
       // code block
-      console.log(`${funcName}(${source}) fired.`);
       return true;
       break;
     case 'pdf':
       // code block
-      console.log(`${funcName}(${source}) fired.`);
       return true;
       break;
     default:
       // code block
   }
 };
-
-// Currently working on this one
-/*
-  Currently changing out the usage of the objects in the script
-  The current plan is to use one object from start to finish
-  and build on it at each stage of the scrape
-*/
 module.exports.getTranscripts = (source, episodeObjects) => {
+  /*
+
+    Currently changing out the usage of the objects in the script
+    The current plan is to use one object from start to finish
+    and build on it at each stage of the scrape
+
+  */
   /**
 
   Documentation goes here!
 
   **/
-  new Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let funcName = 'getTranscripts';
     switch(source) {
       case 'wikia':
-        console.log(`${funcName}(${source}) fired.`);
         (async () => {
           let itemsProcessed = 0;
+          console.log(episodeObjects);
           episodeObjects.forEach((episode, i, array) => {
             console.log(`
               Scrapping ${source} page ${i+1} / ${episodeObjects.length}\n
@@ -185,7 +184,6 @@ module.exports.getTranscripts = (source, episodeObjects) => {
         })();
         break;
       case 'gdoc':
-        console.log(`${funcName}(${source}) fired.`);
         (async () => {
           // Fires up puppeteer in headless mode
           const browser = await puppeteer.launch({headless: true});
@@ -222,7 +220,6 @@ module.exports.getTranscripts = (source, episodeObjects) => {
         })();
         break;
       case 'pdf':
-        console.log(`${funcName}(${source}) fired.`);
         // code block
         break;
       default:
@@ -230,10 +227,9 @@ module.exports.getTranscripts = (source, episodeObjects) => {
     }
   })
 };
-
-// This is going to need more work
-// Taken from addDownloadUrl.js
 module.exports.getDownloadURL = (quotesObj) => {
+  // This is going to need more work
+  // Taken from addDownloadUrl.js
   const epNumRegex = /\d{2,}/;
   const options = {
     uri: 'http://mbmbam.libsyn.com/rss',
@@ -285,7 +281,6 @@ module.exports.getDownloadURL = (quotesObj) => {
     })
     .catch((err) => console.error(err));
 };
-
 module.exports.parseTranscripts = (rawTranscriptsObj) => {
   let funcName = 'parseTranscripts';
   switch(source) {
