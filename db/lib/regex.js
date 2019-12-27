@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
-
-// Various regular expersions
+/*
+  regex.js is a library of regular expressions
+  for use in the mbmbam.app web scrapping processes
+*/
+/* Regular Expressions */
 module.exports = {
   episodeTitle: /MBMBAM\s{1}\d{2,}\:.*/i,
   episodeNumber: /\d{2,}/,

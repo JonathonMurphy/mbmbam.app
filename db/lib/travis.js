@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
-
 /*
   travis.js is a custom library for scraping
   MBMBaM quotes from the web
 /*
-
 /* Dependencies */
 const Wikiaapi = require('nodewikiaapi'),
       wiki = 'http://mbmbam.wikia.com',
@@ -17,26 +15,13 @@ const Wikiaapi = require('nodewikiaapi'),
       regex = require('./regex');
 
 /* Exported Functions */
-module.exports.scratchpad = async (data) => {
-  /*
-
-  Scratch function to test out functionality
-  when needed
-
-  */
-  return new Promise((resolve, reject) => {
-    setTimeout(function() {
-      // console.log(data)
-     resolve(data);
-   }, 3000);
-  });
-};
 module.exports.findTranscripts = (source) => {
   /**
 
   Locates trancripts URLs addresses for a particular source
 
   Returns an array of objects containing
+    source of the transcript
     title of the episode
     episode number
     transcript url
@@ -61,7 +46,7 @@ module.exports.findTranscripts = (source) => {
                 array.push(addressObject);
               }
             });
-            justin.write(`${source}.${funcName}`, array);
+            justin.write(`${funcName}.${source}`, array);
             resolve(array);
           }).catch(function (error) {
             console.error(error);
@@ -98,7 +83,7 @@ module.exports.findTranscripts = (source) => {
               }
             });
             await browser.close();
-            justin.write(`${source}.${funcName}`, array);
+            justin.write(`${funcName}.${source}`, array);
             resolve(array);
           } catch (error) {
             console.log(error);
@@ -109,45 +94,27 @@ module.exports.findTranscripts = (source) => {
       case 'pdf':
         (async () => {
           let array = [];
-          justin.write(`${source}.${funcName}`, array);
+          justin.write(`${funcName}.${source}`, array);
           resolve(array);
         })();
         break;
       default:
-        console.log('Something went wrong... uh oh');
+        console.log(`Uh oh, ${funcName} was called without a valid source`);
     }
   });
 };
-module.exports.checkForNew = (source, array=null, log=null) => {
-  let funcName = 'checkForNew';
-  switch(source) {
-    case 'wikia':
-      // code block
-      return true;
-      break;
-    case 'gdoc':
-      // code block
-      return true;
-      break;
-    case 'pdf':
-      // code block
-      return true;
-      break;
-    default:
-      // code block
-  }
-};
 module.exports.getTranscripts = (source, episodeObjects) => {
-  /*
-
-    Currently changing out the usage of the objects in the script
-    The current plan is to use one object from start to finish
-    and build on it at each stage of the scrape
-
-  */
   /**
 
-  Documentation goes here!
+  Pulls the raw HTML for the episode URL given in the 'source'
+  argument, and adds it to the episodeObject
+
+  Returns an array of objects containing
+    source of the transcript
+    title of the episode
+    episode number
+    transcript url
+    raw scrapped data of the transcript
 
   **/
   return new Promise(function (resolve, reject) {
@@ -156,12 +123,11 @@ module.exports.getTranscripts = (source, episodeObjects) => {
       case 'wikia':
         (async () => {
           let itemsProcessed = 0;
-          console.log(episodeObjects);
           episodeObjects.forEach((episode, i, array) => {
             console.log(`
-              Scrapping ${source} page ${i+1} / ${episodeObjects.length}\n
-              URL: ${episode.transcript_url}
-              Title: ${episode.title}
+Scrapping ${source} page ${i+1} / ${episodeObjects.length}
+URL: ${episode.transcript_url}
+Title: ${episode.title}
               `);
             const options = {
               uri: episode.transcript_url,
@@ -174,7 +140,7 @@ module.exports.getTranscripts = (source, episodeObjects) => {
                 episode.html = $('#WikiaArticle').html();
                 itemsProcessed++;
                 if(itemsProcessed === array.length) {
-                  justin.write(`${source}.${funcName}`, episodeObjects);
+                  justin.write(`${funcName}.${source}`, episodeObjects);
                   resolve(episodeObjects);
                }
               }).catch(function (err) {
@@ -201,9 +167,9 @@ module.exports.getTranscripts = (source, episodeObjects) => {
               const html = await page.content();
               const $ = cheerio.load(html);
               console.log(`
-                Scrapping ${source} page ${i+1} / ${episodeObjects.length}
-                URL: ${episodeObjects[i].transcript_url}
-                Title: ${episodeObjects[i].title}
+Scrapping ${source} page ${i+1} / ${episodeObjects.length}
+URL: ${episodeObjects[i].transcript_url}
+Title: ${episodeObjects[i].title}
                 `);
               // Add the pages HTML to the episodeObject
               episodeObjects[i].html = $('#contents').html()
@@ -211,7 +177,7 @@ module.exports.getTranscripts = (source, episodeObjects) => {
               await page.close();
             } // End for loop
             await browser.close();
-            justin.write(`${source}.${funcName}`, episodeObjects);
+            justin.write(`${funcName}.${source}`, episodeObjects);
             resolve(episodeObjects);
           } catch (error) {
             await browser.close();
@@ -223,11 +189,87 @@ module.exports.getTranscripts = (source, episodeObjects) => {
         // code block
         break;
       default:
-        // code block
+        console.log(`Uh oh, ${funcName} was called without a valid source`);
     }
   })
 };
+module.exports.parseTranscripts = (episodeObjects) => {
+  /**
+
+  Parses the raw scraped data of a given transcript,
+  and returns the object with the object.quotes field
+  populated with the parsed data of the transcript.
+
+  Returns an array of objects containing
+    source of the transcript
+    title of the episode
+    episode number
+    transcript url
+    quotes scrapped from the episode
+    raw scrapped data of the transcript
+
+  **/
+  return new Promise(function (resolve, reject) {
+    let funcName = 'parseTranscripts';
+    switch(source) {
+      case 'wikia':
+        (($) => {
+          $('p, u, i').each(function (i, elem) {
+            let textLength = $(this).text().length;
+            let text = $(this).text().replace('"', '');
+            let m;
+            if ((m = regex.timeStamp.test(text)) == true) {
+              let subStringSelection = text.substring(0,2);
+              text.replace(subStringSelection, '');
+              return text;
+            }
+            if ((m = regex.filter.test(text)) == false) {
+              justin.sortQuote(text, episodeObject.quotes);
+            }
+          });
+        })();
+        break;
+      case 'gdoc':
+        // code block
+        break;
+      case 'pdf':
+        // code block
+        break;
+      default:
+        console.log(`Uh oh, ${funcName} was called without a valid source`);
+    }
+  })
+};
+module.exports.checkForNew = (source, array=null, log=null) => {
+  /**
+
+  Documentation goes here!
+
+  **/
+  let funcName = 'checkForNew';
+  switch(source) {
+    case 'wikia':
+      // code block
+      return true;
+      break;
+    case 'gdoc':
+      // code block
+      return true;
+      break;
+    case 'pdf':
+      // code block
+      return true;
+      break;
+    default:
+      console.log(`Uh oh, ${funcName} was called without a valid source`);
+  }
+};
 module.exports.getDownloadURL = (quotesObj) => {
+  /**
+
+  Documentation goes here!
+
+  **/
   // This is going to need more work
   // Taken from addDownloadUrl.js
   const epNumRegex = /\d{2,}/;
@@ -280,39 +322,4 @@ module.exports.getDownloadURL = (quotesObj) => {
       return quotesObj;
     })
     .catch((err) => console.error(err));
-};
-module.exports.parseTranscripts = (rawTranscriptsObj) => {
-  let funcName = 'parseTranscripts';
-  switch(source) {
-    case 'wikia':
-      /*
-      // function ($) {
-      //   $('p, u, i').each(function (i, elem) {
-      //     let textLength = $(this).text().length;
-      //     let text = $(this).text().replace('"', '');
-      //     let m;
-      //     if ((m = regex.timeStamp.test(text)) == true) {
-      //       let subStringSelection = text.substring(0,2);
-      //       text.replace(subStringSelection, '');
-      //       return text;
-      //     }
-      //     if ((m = regex.filter.test(text)) == false) {
-      //       justin.sortQuote(text, episodeObject.quotes);
-      //     }
-      //   });
-      // }
-      */
-      console.log(`${funcName}() fired with ${rawTranscriptsObj.source} as the source.`);
-      break;
-    case 'gdoc':
-      // code block
-      console.log(`${funcName}() fired with ${rawTranscriptsObj.source} as the source.`);
-      break;
-    case 'pdf':
-      // code block
-      console.log(`${funcName}() fired with ${rawTranscriptsObj.source} as the source.`);
-      break;
-    default:
-      // code block
-  }
 };
