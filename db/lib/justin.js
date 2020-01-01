@@ -6,8 +6,33 @@
 /*
 /* Dependencies */
 const regex = require('./regex'),
+      log4js = require('log4js'),
       path = require('path'),
       fs = require('fs');
+
+/* Logging configuration */
+// TODO: Add in an appender that will
+// send out an email to us if certain conditions are met
+let today = new Date();
+today = `${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()}`;
+log4js.configure({
+  appenders: {
+    justin: { type: 'file', filename: `logs/console/${today}.justin.log` },
+    console: { type: 'console'}
+    // mailgun: {
+    //   type: '@log4js-node/mailgun',
+    //   apiKey: '123456abc',
+    //   domain: 'some.company',
+    //   from: 'logging@some.service',
+    //   to: 'important.bosses@some.company',
+    //   subject: 'Error: Developers Need To Be Fired'
+    // }
+  },
+  categories: {
+    default: { appenders: ['justin', 'console'], level: 'info' }
+  }
+});
+const logger = log4js.getLogger();
 
 /* Exported functions */
 function Episode (s, t, tU, pC=null, html=null, dU=null) {
@@ -50,90 +75,52 @@ module.exports.write = (string, data, ext='json') => {
 
   */
 
-  // Get todays date
   let today = new Date();
-  let dd = String(today.getDate()).padStart(2, '0');
-  let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-  let yyyy = today.getFullYear();
-  today = mm + '.' + dd + '.' + yyyy;
+  today = `${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()}`;
 
   // Log action to console
-  console.log(`Logging data to ./logs/${today}.${string}.log.${ext}\n`)
+  logger.info(`Logging data to ./logs/data/${today}.${string}.log.${ext}\n`)
 
   // Execute action of logging data to file
   switch(ext) {
     case 'json':
-      fs.writeFileSync(`./logs/${today}.${string}.log.${ext}`, JSON.stringify(data));
+      fs.writeFileSync(`./logs/data/${today}.${string}.log.${ext}`, JSON.stringify(data));
       break;
     default:
-      fs.writeFileSync(`./logs/${today}.${string}.log.${ext}`, data);
+      fs.writeFileSync(`./logs/data/${today}.${string}.log.${ext}`, data);
   }
   // TODO: Add callback functionality
   // // Execute the callback function if one was passed
   // callback();
 };
-module.exports.log = (text) => {
-  /**
-
-  Documentation goes here!
-
-  **/
-  // Get todays date
-  let today = new Date();
-  let dd = String(today.getDate()).padStart(2, '0');
-  let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-  let yyyy = today.getFullYear();
-  today = mm + '.' + dd + '.' + yyyy;
-  // Console log the data
-  console.log(text);
-  // Write data to disk for future troubleshooting
-  // This may have to be a stream so that it doesnn't
-  // continuously overwrite itself
-  fs.writeFile(`./${today}.log`, text)
-}
 module.exports.sortQuote = (text, object) => {
   /**
 
-  Documentation goes here!
+  Takes a text string and the episodeObject in as
+  arguments. It then parses the text, and breaks
+  it down into two components, speaker and quote.
+
+  It then adds the speaker string to the episodeObject
+  as a key with an array as it's value and pushes
+  the quote string into that array.
 
   **/
-  // Taken from sortQuotes.js
+  let quoteText;
   let speakerName = text.match(regex.speaker);
-  console.log(speakerName);
   if (speakerName != null) {
     speakerName = speakerName[0].replace(/\:/, '');
     speakerName = speakerName.toLowerCase();
     quoteText = text.match(regex.quote);
-    quoteText = quoteText[0].trim();
+    quoteText = quoteText[0].replace(/\:/, '');
+    quoteText = quoteText.trim();
     if (object.quotes.hasOwnProperty(speakerName)) {
       object.quotes[speakerName].push(quoteText);
     } else {
       object.quotes[speakerName] = [quoteText];
     }
+    // logger.info(`${speakerName}: ${quoteText}`);
   }
-};
-module.exports.sortQuoteOld = (text, object) => {
-  /**
 
-  Documentation goes here!
-
-  **/
-  if (text.includes('J:') || text.includes('Justin:')) {
-    text = text.replace('J: ', '');
-    text = text.replace('Justin:', '');
-    object.quotes.justin.push(text);
-  } else if (text.includes('T:') || text.includes('Travis:')) {
-    text = text.replace('T: ', '');
-    text = text.replace('Travis:', '');
-    object.quotes.travis.push(text);
-  } else if (text.includes('G:') || text.includes('Griffin:')) {
-    text = text.replace('G: ', '');
-    text = text.replace('Griffin:', '');
-    object.quotes.griffin.push(text);
-  } else if (text.length !== 0) {
-    text = text.replace('[???]: ', '');
-    object.quotes.unattributed.push(text);
-  }
 };
 module.exports.createIndexFile = (quotesObj) => {
   /**
@@ -170,3 +157,11 @@ module.exports.createIndexFile = (quotesObj) => {
         });
         return index;
       };
+module.exports.cleanup = () => {
+/*
+
+  This function is intended to clean up the logs
+  sub-directory's when files reach a certain age
+
+*/
+}

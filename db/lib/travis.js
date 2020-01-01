@@ -12,10 +12,36 @@ const Wikiaapi = require('nodewikiaapi'),
       rp = require('request-promise'),
       cheerio = require('cheerio'),
       justin = require('./justin'),
-      regex = require('./regex');
+      regex = require('./regex'),
+      log4js = require('log4js');
+
+
+/* Logging configuration */
+// TODO: Add in an appender that will
+// send out an email to us if certain conditions are met
+let today = new Date();
+today = `${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()}`;
+log4js.configure({
+  appenders: {
+    travis: { type: 'file', filename: `logs/console/${today}.travis.log` },
+    console: { type: 'console'}
+    // mailgun: {
+    //   type: '@log4js-node/mailgun',
+    //   apiKey: '123456abc',
+    //   domain: 'some.company',
+    //   from: 'logging@some.service',
+    //   to: 'important.bosses@some.company',
+    //   subject: 'Error: Developers Need To Be Fired'
+    // }
+  },
+  categories: {
+    default: { appenders: ['travis', 'console'], level: 'info' }
+  }
+});
+const logger = log4js.getLogger();
 
 /* Exported Functions */
-module.exports.findTranscripts = (source) => {
+module.exports.find = (source) => {
   /**
 
   Locates trancripts URLs addresses for a particular source
@@ -30,29 +56,32 @@ module.exports.findTranscripts = (source) => {
   return new Promise(function (resolve, reject) {
     let funcName = 'findTranscripts';
     switch(source) {
-      case 'wikia':
+      case 'wikia transcript':
         (async () => {
           let array = [];
           mywiki.getArticlesList({
               limit: 1000
           }).then(function (data) {
             data.items.forEach(function (item, i) {
-              if (regex.transcript.test(item.title)) {
+              if (regex.transcript.test(item.url)) {
                 let addressObject = new justin.Episode(
                   source,
                   item.title.replace('/Transcript', ''),
                   wiki + item.url
-                )
+                );
                 array.push(addressObject);
               }
             });
             justin.write(`${funcName}.${source}`, array);
             resolve(array);
           }).catch(function (error) {
-            console.error(error);
+            logger.error(error);
             reject(error);
           });
         })();
+        break;
+      case 'wikia article':
+        // code block
         break;
       case 'gdoc':
         (async () => {
@@ -86,7 +115,7 @@ module.exports.findTranscripts = (source) => {
             justin.write(`${funcName}.${source}`, array);
             resolve(array);
           } catch (error) {
-            console.log(error);
+            logger.info(error);
             reject(error);
           }
         })();
@@ -99,11 +128,11 @@ module.exports.findTranscripts = (source) => {
         })();
         break;
       default:
-        console.log(`Uh oh, ${funcName} was called without a valid source`);
+        logger.info(`Uh oh, ${funcName} was called without a valid source`);
     }
   });
 };
-module.exports.getTranscripts = (source, episodeObjects) => {
+module.exports.get = (source, episodeObjects) => {
   /**
 
   Pulls the raw HTML for the episode URL given in the 'source'
@@ -120,11 +149,11 @@ module.exports.getTranscripts = (source, episodeObjects) => {
   return new Promise(function (resolve, reject) {
     let funcName = 'getTranscripts';
     switch(source) {
-      case 'wikia':
+      case 'wikia transcript':
         (async () => {
           let itemsProcessed = 0;
           episodeObjects.forEach((episode, i, array) => {
-            console.log(`
+            logger.info(`
 Scrapping ${source} page ${i+1} / ${episodeObjects.length}
 URL: ${episode.transcript_url}
 Title: ${episode.title}
@@ -144,10 +173,13 @@ Title: ${episode.title}
                   resolve(episodeObjects);
                }
               }).catch(function (err) {
-                console.error(err);
+                logger.error(err);
               });
           });
         })();
+        break;
+      case 'wikia article':
+        // code block
         break;
       case 'gdoc':
         (async () => {
@@ -166,13 +198,13 @@ Title: ${episode.title}
               // Assigns all the HTML content of the page to a variable and then give cheerio access to it.
               const html = await page.content();
               const $ = cheerio.load(html);
-              console.log(`
+              logger.info(`
 Scrapping ${source} page ${i+1} / ${episodeObjects.length}
 URL: ${episodeObjects[i].transcript_url}
 Title: ${episodeObjects[i].title}
                 `);
               // Add the pages HTML to the episodeObject
-              episodeObjects[i].html = $('#contents').html()
+              episodeObjects[i].html = $('#contents').html();
               //  Close current page
               await page.close();
             } // End for loop
@@ -181,7 +213,7 @@ Title: ${episodeObjects[i].title}
             resolve(episodeObjects);
           } catch (error) {
             await browser.close();
-            console.log(error);
+            logger.info(error);
           }
         })();
         break;
@@ -189,16 +221,17 @@ Title: ${episodeObjects[i].title}
         // code block
         break;
       default:
-        console.log(`Uh oh, ${funcName} was called without a valid source`);
+        logger.info(`Uh oh, ${funcName} was called without a valid source`);
     }
-  })
+  });
 };
-module.exports.parseTranscripts = (episodeObjects) => {
+module.exports.parse = (episodeObjects) => {
   /**
 
   Parses the raw scraped data of a given transcript,
   and returns the object with the object.quotes field
   populated with the parsed data of the transcript.
+
 
   Returns an array of objects containing
     source of the transcript
@@ -209,36 +242,111 @@ module.exports.parseTranscripts = (episodeObjects) => {
     raw scrapped data of the transcript
 
   **/
+  /** Issue:
+
+  For whatever reason when the loop changes
+  from one source to the next an error is thrown,
+  because the variable getting parsed turns up as
+  undefined.
+
+  Because of this the forEach loop needs to be
+  moved from this library up into the script file
+  itself. This allows everything to be parsed like
+  normal.
+
+  **/
   return new Promise(function (resolve, reject) {
     let funcName = 'parseTranscripts';
-    switch(source) {
-      case 'wikia':
-        (($) => {
-          $('p, u, i').each(function (i, elem) {
-            let textLength = $(this).text().length;
-            let text = $(this).text().replace('"', '');
-            let m;
-            if ((m = regex.timeStamp.test(text)) == true) {
-              let subStringSelection = text.substring(0,2);
-              text.replace(subStringSelection, '');
-              return text;
+    let processed = 0;
+    episodeObjects.forEach((episode, i) => {
+      switch(episode.source) {
+        case 'wikia transcript':
+          (async () => {
+            try {
+              logger.info(`
+Parsing page ${i+1} / ${episodeObjects.length}
+URL: ${episode.transcript_url}
+Title: ${episode.title}
+Source: ${episode.source}
+                `);
+              const $ = cheerio.load(episode.html);
+              $('tr').each(function (i, elem) {
+                let text = $(this).text().replace(/\n/g, '');
+                justin.sortQuote(text, episode);
+              });
+              processed++;
+            } catch (error) {
+              logger.error(error);
+              reject(error);
             }
-            if ((m = regex.filter.test(text)) == false) {
-              justin.sortQuote(text, episodeObject.quotes);
+          })();
+          break;
+        case 'wikia article':
+          (async () => {
+            try {
+              let html = episode.html;
+              const $ = cheerio.load(html);
+              $('p, u, i').each(function (i, elem) {
+                let textLength = $(this).text().length;
+                let text = $(this).text().replace('"', '');
+                let m;
+                if ((m = regex.timeStamp.test(text)) == true) {
+                  let subStringSelection = text.substring(0,2);
+                  text.replace(subStringSelection, '');
+                  return text;
+                }
+                if ((m = regex.filter.test(text)) == false) {
+                  justin.sortQuote(text, episode.quotes);
+                }
+              });
+              processed++;
+            } catch (error) {
+              logger.error(error);
+              reject(error);
             }
-          });
-        })();
-        break;
-      case 'gdoc':
-        // code block
-        break;
-      case 'pdf':
-        // code block
-        break;
-      default:
-        console.log(`Uh oh, ${funcName} was called without a valid source`);
-    }
-  })
+          })();
+          break;
+        case 'gdoc':
+          (async () => {
+            try {
+              logger.info(`
+Parsing page ${i+1} / ${episodeObjects.length}
+URL: ${episode.transcript_url}
+Title: ${episode.title}
+Source: ${episode.source}
+                `);
+              const $ = cheerio.load(episode.html);
+              let str;
+              $('span').each(function(i, elem){
+                str += $(this).text() + '\n';
+              });
+              let regexMatches = [];
+              regexMatches = str.match(regex.superQuote);
+              regexMatches.map(function(entry, index, array){
+                array[index] = entry.replace(/\r?\n|\r/g, '');
+              });
+              regexMatches.forEach(function(match) {
+                justin.sortQuote(match, episode);
+              });
+              processed++;
+            } catch (error) {
+              logger.error(error);
+              reject(error);
+            }
+          })();
+          break;
+        case 'pdf':
+          // code block
+          break;
+        default:
+          logger.info(`Uh oh, ${funcName} was called without a valid source`);
+      }
+      if(processed === episodeObjects.length) {
+        justin.write(`${funcName}`, episodeObjects);
+        resolve(episodeObjects);
+     }
+   });
+ });
 };
 module.exports.checkForNew = (source, array=null, log=null) => {
   /**
@@ -248,21 +356,22 @@ module.exports.checkForNew = (source, array=null, log=null) => {
   **/
   let funcName = 'checkForNew';
   switch(source) {
-    case 'wikia':
+    case 'wikia transcript':
       // code block
-      return true;
+      break;
+    case 'wikia article':
+      // code block
       break;
     case 'gdoc':
       // code block
-      return true;
       break;
     case 'pdf':
       // code block
-      return true;
       break;
     default:
-      console.log(`Uh oh, ${funcName} was called without a valid source`);
+      logger.info(`Uh oh, ${funcName} was called without a valid source`);
   }
+  return true;
 };
 module.exports.getDownloadURL = (quotesObj) => {
   /**
@@ -321,5 +430,5 @@ module.exports.getDownloadURL = (quotesObj) => {
     .then(function() {
       return quotesObj;
     })
-    .catch((err) => console.error(err));
+    .catch((err) => logger.error(err));
 };

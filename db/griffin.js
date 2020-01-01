@@ -7,23 +7,23 @@ const justin = require('./lib/justin'),
       fs = require('fs');
 
 /* Global Variables */
-const repos = ['wikia', 'gdoc'];
+const repos = ['wikia transcript', 'gdoc'];
 
-let found,
-    gotten = [],
-    parsed,
-    processed = 0;
+let found;
+let gotten = [];
+let parsed;
+let processed = 0;
 
 (async() => {
   repos.forEach(async(repo) => {
-    found = JSON.parse(fs.readFileSync(`./logs/12.26.2019.findTranscripts.${repo}.log.json`));
+    found = await travis.find(repo);
     if (travis.checkForNew(repo)) {
-      gotten.push(...await travis.getTranscripts(repo, found));
+      gotten.push(...await travis.get(repo, found));
     }
     processed++;
     if(processed === repos.length) {
       justin.write('gotten', gotten);
+      parsed = await travis.parse(gotten);
    }
   });
-  // parsed = await travis.parseTranscripts(gotten);
 })();

@@ -70,19 +70,6 @@ const quoteRegex = /(?<speaker>(?<threeNames>[A-Z]{1}[a-zA-Z]*\s{1}[A-Z]{1}[a-zA
         // Assins all the HTML content of the page to a variable and then give cheerio access to it.
         let html = await page.content();
         const $ = cheerio.load(html);
-        // let m;
-        // let pageText = $('#contents').innerText()
-        // grab all the text contents with innerText() and then use regex to navigate it
-        // $('#contents').children('p').each(function (i, elem) {
-        //   let text = $(this).text();
-        //   if ((m = regexEpisodeTitle.test(text)) == true) {
-        //     quoteObject.episode = text.replace('MBMBAM', 'Episode');
-        //   } else {
-        //     // Filters by brother
-        //     sortQuotes(text, quoteObject);
-        //   }
-        // });
-        /**/
         let str;
         $('span').each(function(i, elem){
           str += $(this).text() + '\n'
