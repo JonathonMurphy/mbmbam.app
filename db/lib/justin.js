@@ -13,8 +13,8 @@ const regex = require('./regex'),
 /* Logging configuration */
 // TODO: Add in an appender that will
 // send out an email to us if certain conditions are met
-let today = new Date();
-today = `${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()}`;
+const todaysDate = new Date();
+const today = `${todaysDate.getFullYear()}.${todaysDate.getMonth()+1}.${todaysDate.getDate()}`;
 log4js.configure({
   appenders: {
     justin: { type: 'file', filename: `logs/console/${today}.justin.log` },
@@ -64,7 +64,7 @@ function Episode (s, t, tU, pC=null, html=null, dU=null) {
   this.download_url = dU;
   this.quotes = {};
   this.html = html;
-};
+}
 module.exports.Episode = Episode;
 module.exports.write = (string, data, ext='json') => {
   /*
@@ -75,11 +75,11 @@ module.exports.write = (string, data, ext='json') => {
 
   */
 
-  let today = new Date();
-  today = `${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()}`;
+  // let today = new Date();
+  // today = `${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()}`;
 
   // Log action to console
-  logger.info(`Logging data to ./logs/data/${today}.${string}.log.${ext}\n`)
+  logger.info(`Logging data to ./logs/data/${today}.${string}.log.${ext}\n`);
 
   // Execute action of logging data to file
   switch(ext) {
@@ -157,11 +157,25 @@ module.exports.createIndexFile = (quotesObj) => {
         });
         return index;
       };
-module.exports.cleanup = () => {
+module.exports.cleanup = (directory, daysToKeep=5) => {
 /*
 
   This function is intended to clean up the logs
   sub-directory's when files reach a certain age
 
+  Takes the directory path as a string, and then
+  deletes any files older than daysToKeep days old
+
 */
-}
+let filenames = fs.readdirSync(directory);
+filenames.forEach((filename) => {
+  filenameArray = filename.split(".");
+  const fileDate = new Date(`${filenameArray[0]}/${filenameArray[1]}/${filenameArray[2]}`);
+  const diffTime = Math.abs(todaysDate - fileDate);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays > daysToKeep) {
+    console.log(`Removing ${directory}${filename}`);
+    fs.unlinkSync(`${directory}${filename}`)
+  }
+});
+};

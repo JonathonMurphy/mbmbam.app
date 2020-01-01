@@ -8,6 +8,7 @@ const justin = require('./lib/justin'),
 
 /* Global Variables */
 const repos = ['wikia transcript', 'gdoc'];
+const logDirectories = ['./logs/console/', './logs/data/']
 
 let found;
 let gotten = [];
@@ -15,6 +16,9 @@ let parsed;
 let processed = 0;
 
 (async() => {
+  logDirectories.forEach(async(dir) => {
+    await justin.cleanup(dir)
+  })
   repos.forEach(async(repo) => {
     found = await travis.find(repo);
     if (travis.checkForNew(repo)) {
