@@ -167,15 +167,25 @@ module.exports.cleanup = (directory, daysToKeep=5) => {
   deletes any files older than daysToKeep days old
 
 */
-let filenames = fs.readdirSync(directory);
-filenames.forEach((filename) => {
-  filenameArray = filename.split(".");
-  const fileDate = new Date(`${filenameArray[0]}/${filenameArray[1]}/${filenameArray[2]}`);
-  const diffTime = Math.abs(todaysDate - fileDate);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  if (diffDays > daysToKeep) {
-    console.log(`Removing ${directory}${filename}`);
-    fs.unlinkSync(`${directory}${filename}`)
-  }
-});
+return new Promise(function (resolve, reject) {
+  if (error) {
+    reject(error);
+  };
+  let filenames = fs.readdirSync(directory);
+  let processed = 0;
+  filenames.forEach((filename) => {
+    filenameArray = filename.split(".");
+    const fileDate = new Date(`${filenameArray[0]}/${filenameArray[1]}/${filenameArray[2]}`);
+    const diffTime = Math.abs(todaysDate - fileDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays > daysToKeep) {
+      console.log(`Removing ${directory}${filename}`);
+      fs.unlinkSync(`${directory}${filename}`)
+    }
+    processed++;
+    if (processed === filenames.length) {
+      resolve();
+    }
+  });
+})
 };
