@@ -2,4 +2,10 @@ app/node_modules
 app/logs/access.log
 db/node_modules
 db/elasticsearch-7.2.0
+db/test.*
+db/logs/data/*
+db/logs/console/*
+!db/logs/data/.gitkeep
+!db/logs/console/.gitkeep
+db/scratchpad.*
 *.pem
