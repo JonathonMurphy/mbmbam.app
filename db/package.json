@@ -4,14 +4,16 @@
   "description": "Database and associated scripts for mbmbam-search application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@elastic/elasticsearch": "^7.1.0",
+    "chai": "^4.2.0",
     "cheerio": "^1.0.0-rc.3",
     "log4js": "^6.1.0",
+    "mocha": "^6.2.2",
     "nodewikiaapi": "^2.0.3",
     "puppeteer": "^2.0.0",
     "query-string": "^6.9.0",

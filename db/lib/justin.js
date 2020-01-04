@@ -5,13 +5,12 @@
   for the backend portion of this app
 /*
 /* Dependencies */
-const regex = require('./regex'),
+const { Client } = require('@elastic/elasticsearch'),
+      client = new Client({node: 'https://vpc-mbmbam-jb5nrxn3lk3epnc44z74hgccfu.us-east-2.es.amazonaws.com'}),
+      regex = require('./regex'),
       log4js = require('log4js'),
       path = require('path'),
       fs = require('fs');
-
-const { Client } = require('@elastic/elasticsearch');
-const client = new Client({node: 'https://vpc-mbmbam-jb5nrxn3lk3epnc44z74hgccfu.us-east-2.es.amazonaws.com'});
 
 /* Logging configuration */
 // TODO: Add in an appender that will
