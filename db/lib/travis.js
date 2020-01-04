@@ -54,7 +54,7 @@ module.exports.find = (source) => {
 
   **/
   return new Promise(function (resolve, reject) {
-    let funcName = 'findTranscripts';
+    let funcName = 'find';
     switch(source) {
       case 'wikia transcript':
         (async () => {
@@ -147,7 +147,7 @@ module.exports.get = (source, episodeObjects) => {
 
   **/
   return new Promise(function (resolve, reject) {
-    let funcName = 'getTranscripts';
+    let funcName = 'get';
     switch(source) {
       case 'wikia transcript':
         (async () => {
@@ -242,21 +242,8 @@ module.exports.parse = (episodeObjects) => {
     raw scrapped data of the transcript
 
   **/
-  /** Issue:
-
-  For whatever reason when the loop changes
-  from one source to the next an error is thrown,
-  because the variable getting parsed turns up as
-  undefined.
-
-  Because of this the forEach loop needs to be
-  moved from this library up into the script file
-  itself. This allows everything to be parsed like
-  normal.
-
-  **/
   return new Promise(function (resolve, reject) {
-    let funcName = 'parseTranscripts';
+    let funcName = 'parse';
     let processed = 0;
     episodeObjects.forEach((episode, i) => {
       switch(episode.source) {
@@ -348,13 +335,13 @@ Source: ${episode.source}
    });
  });
 };
-module.exports.checkForNew = (source, array=null, log=null) => {
+module.exports.new = (source, array=null, log=null) => {
   /**
 
   Documentation goes here!
 
   **/
-  let funcName = 'checkForNew';
+  let funcName = 'new';
   switch(source) {
     case 'wikia transcript':
       // code block

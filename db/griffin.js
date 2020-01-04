@@ -21,7 +21,7 @@ let processed = 0;
   })
   repos.forEach(async(repo) => {
     found = await travis.find(repo);
-    if (travis.checkForNew(repo)) {
+    if (travis.new(repo)) {
       gotten.push(...await travis.get(repo, found));
     }
     processed++;
