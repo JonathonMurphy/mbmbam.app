@@ -5,9 +5,25 @@
   files within the /db/ directory
 /*
 /* Dependencies */
+const chai = require('chai'),
+      assert = chai.assert,
+      expect = chai.expect,
+      should = chai.should();
+
+/* Files to test */
+const regex = require('../lib/regex'),
+      justin = require('../lib/justin'),
+      travis = require('../lib/travis'),
+      griffin = require('../griffin');
+
+/* Tests for travis.js */
+expect(travis.find()).to.be.a('function');
 
 
-/* travis.js Tests */
-const assert = require('assert'),
-      chai = require('chai'),
-      expect = chai.expect;
+/* Tests for justin.js */
+
+
+/* Tests for griffin.js */
+
+
+/* Tests for regex.js */
