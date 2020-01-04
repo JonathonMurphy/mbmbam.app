@@ -10,6 +10,9 @@ const regex = require('./regex'),
       path = require('path'),
       fs = require('fs');
 
+const { Client } = require('@elastic/elasticsearch');
+const client = new Client({node: 'https://vpc-mbmbam-jb5nrxn3lk3epnc44z74hgccfu.us-east-2.es.amazonaws.com'});
+
 /* Logging configuration */
 // TODO: Add in an appender that will
 // send out an email to us if certain conditions are met
@@ -122,7 +125,7 @@ module.exports.sortQuote = (text, object) => {
   }
 
 };
-module.exports.createIndexFile = (quotesObj) => {
+module.exports.createIndex = (quotesObj) => {
   /**
 
   Documentation goes here!
@@ -157,6 +160,35 @@ module.exports.createIndexFile = (quotesObj) => {
         });
         return index;
       };
+module.exports.index = (indexObejct) => {
+  return new Promise(function (resolve, reject) {
+    (async () => {
+      for (indexFile of indexFiles) {
+      await client.index(indexFile)
+    }
+    })()
+  })
+};
+module.exports.search = (arg) => {
+  (async () => {
+    const { body } = await client.search({
+      index: 'mbmbam-search',
+      type: 'quote',
+      body: {
+        query: {
+          match: {
+            quote: arg
+          }
+        }
+      }
+    })
+
+    body.hits.hits.forEach(function(hit) {
+      console.log(hit)
+      console.log("\n")
+    })
+  })();
+};
 module.exports.cleanup = (directory, daysToKeep=5) => {
 /*
 
