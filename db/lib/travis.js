@@ -128,7 +128,7 @@ module.exports.find = (source) => {
         })();
         break;
       default:
-        logger.info(`Uh oh, ${funcName} was called without a valid source`);
+        logger.error(`Uh oh, ${funcName} was called without a valid source`);
     }
   });
 };
@@ -221,7 +221,7 @@ Title: ${episodeObjects[i].title}
         // code block
         break;
       default:
-        logger.info(`Uh oh, ${funcName} was called without a valid source`);
+        logger.error(`Uh oh, ${funcName} was called without a valid source`);
     }
   });
 };
@@ -326,7 +326,7 @@ Source: ${episode.source}
           // code block
           break;
         default:
-          logger.info(`Uh oh, ${funcName} was called without a valid source`);
+          logger.error(`Uh oh, ${funcName} was called without a valid source`);
       }
       if(processed === episodeObjects.length) {
         justin.write(`${funcName}`, episodeObjects);
@@ -356,11 +356,11 @@ module.exports.new = (source, array=null, log=null) => {
       // code block
       break;
     default:
-      logger.info(`Uh oh, ${funcName} was called without a valid source`);
+      logger.error(`Uh oh, ${funcName} was called without a valid source`);
   }
   return true;
 };
-module.exports.getDownloadURL = (quotesObj) => {
+module.exports.add = (string, quotesObj) => {
   /**
 
   Documentation goes here!
@@ -368,54 +368,65 @@ module.exports.getDownloadURL = (quotesObj) => {
   **/
   // This is going to need more work
   // Taken from addDownloadUrl.js
-  const epNumRegex = /\d{2,}/;
-  const options = {
-    uri: 'http://mbmbam.libsyn.com/rss',
-    transform: function (body) {
-      return cheerio.load(body, {
-        xml: {
-          withDomLvl1: true,
-          normalizeWhitespace: false,
-          xmlMode: true,
-          decodeEntities: true
-        }
-      });
-    }
-  };
-  regexConstructor = (match) => {
-    const negativeLookBehind = '(?<![0-9])',
-          negativeLookAhead = '(?![0-9])';
-    if (match < 10) {
-      let findEpisodeUrlRegex = `${negativeLookBehind}0${match.toString()}${negativeLookAhead}`;
-      return new RegExp(findEpisodeUrlRegex);
-    } else {
-      let findEpisodeUrlRegex = `${negativeLookBehind}${match.toString()}${negativeLookAhead}`;
-      return new RegExp(findEpisodeUrlRegex);
-    }
-  };
-  rp(options)
-    .then(($) => {
-      let links = [];
-      $('link').each(function() {
-        links.push($(this).text());
-      });
-      quotesObj.episodes.forEach(function(episode) {
-        let eisodeNumber;
-        if (episode.episode.match(epNumRegex) != null) {
-          episodeNumber = Number(episode.episode.match(epNumRegex)[0]);
-        } else {
-          episodeNumber = 'n/a';
-        }
-        let findUrlRegex = regexConstructor(episodeNumber);
-        links.forEach(function(link) {
-          if (link.match(findUrlRegex) != null) {
-            episode.download_url = link;
+  return new Promise(function(resolve, reject) {
+    let funcName = 'add';
+    switch(string) {
+      case 'download url':
+        const epNumRegex = /\d{2,}/;
+        const options = {
+          uri: 'http://mbmbam.libsyn.com/rss',
+          transform: function (body) {
+            return cheerio.load(body, {
+              xml: {
+                withDomLvl1: true,
+                normalizeWhitespace: false,
+                xmlMode: true,
+                decodeEntities: true
+              }
+            });
           }
-        });
-      });
-    })
-    .then(function() {
-      return quotesObj;
-    })
-    .catch((err) => logger.error(err));
+        };
+        regexConstructor = (match) => {
+          const negativeLookBehind = '(?<![0-9])',
+                negativeLookAhead = '(?![0-9])';
+          if (match < 10) {
+            let findEpisodeUrlRegex = `${negativeLookBehind}0${match.toString()}${negativeLookAhead}`;
+            return new RegExp(findEpisodeUrlRegex);
+          } else {
+            let findEpisodeUrlRegex = `${negativeLookBehind}${match.toString()}${negativeLookAhead}`;
+            return new RegExp(findEpisodeUrlRegex);
+          }
+        };
+        rp(options)
+          .then(($) => {
+            let links = [];
+            $('link').each(function() {
+              links.push($(this).text());
+            });
+            quotesObj.episodes.forEach(function(episode) {
+              let eisodeNumber;
+              if (episode.episode.match(epNumRegex) != null) {
+                episodeNumber = Number(episode.episode.match(epNumRegex)[0]);
+              } else {
+                episodeNumber = 'n/a';
+              }
+              let findUrlRegex = regexConstructor(episodeNumber);
+              links.forEach(function(link) {
+                if (link.match(findUrlRegex) != null) {
+                  episode.download_url = link;
+                }
+              });
+            });
+          })
+          .then(function() {
+            return quotesObj;
+          })
+          .catch((err) => logger.error(err));
+        break;
+      default:
+        logger.error(`Uh oh, ${funcName} was called without a valid source`);
+    }
+  });
+
+
 };
