@@ -129,6 +129,7 @@ module.exports.find = (source) => {
         break;
       default:
         logger.error(`Uh oh, ${funcName} was called without a valid source`);
+        reject();
     }
   });
 };
@@ -241,6 +242,8 @@ module.exports.parse = (episodeObjects) => {
     quotes scrapped from the episode
     raw scrapped data of the transcript
 
+  todo: add in error messages when an episode is not parsed. 
+
   **/
   return new Promise(function (resolve, reject) {
     let funcName = 'parse';
@@ -338,7 +341,7 @@ Source: ${episode.source}
 module.exports.new = (source, array=null, log=null) => {
   /**
 
-  Documentation goes here!
+  Checks for new episodes that have not yet been indexed
 
   **/
   let funcName = 'new';
@@ -363,7 +366,7 @@ module.exports.new = (source, array=null, log=null) => {
 module.exports.add = (string, quotesObj) => {
   /**
 
-  Documentation goes here!
+  Adds new properties to the episode object
 
   **/
   // This is going to need more work
