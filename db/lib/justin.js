@@ -55,7 +55,7 @@ function Episode (s, t, tU, pC=null, html=null, dU=null) {
     if (t.match(regex.episodeNumber)) {
       this.number = Number(t.match(regex.episodeNumber)[0]);
     } else {
-      this.number = null;
+      this.number = 0;
     }
   } else {
     this.title = null;

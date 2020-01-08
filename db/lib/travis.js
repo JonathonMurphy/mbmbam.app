@@ -38,10 +38,10 @@ log4js.configure({
     default: { appenders: ['travis', 'console'], level: 'info' }
   }
 });
-const logger = log4js.getLogger();
+let logger;
 
 /* Exported Functions */
-module.exports.find = (source) => {
+module.exports.find = (source, logging=true) => {
   /**
 
   Locates trancripts URLs addresses for a particular source
@@ -53,6 +53,7 @@ module.exports.find = (source) => {
     transcript url
 
   **/
+  if (logging) {logger = log4js.getLogger()};
   return new Promise(function (resolve, reject) {
     let funcName = 'find';
     switch(source) {
@@ -72,7 +73,9 @@ module.exports.find = (source) => {
                 array.push(addressObject);
               }
             });
-            justin.write(`${funcName}.${source}`, array);
+            if (logging) {
+              justin.write(`${funcName}.${source}`, array);
+            }
             resolve(array);
           }).catch(function (error) {
             logger.error(error);
@@ -81,9 +84,15 @@ module.exports.find = (source) => {
         })();
         break;
       case 'wikia article':
-        // code block
+        (async () => {
+          let array = [];
+          if (logging) {
+            justin.write(`${funcName}.${source}`, array);
+          };
+          resolve();
+        })();
         break;
-      case 'gdoc':
+      case 'google doc':
         (async () => {
           try {
             let array = [];
@@ -112,10 +121,12 @@ module.exports.find = (source) => {
               }
             });
             await browser.close();
-            justin.write(`${funcName}.${source}`, array);
+            if (logging) {
+              justin.write(`${funcName}.${source}`, array);
+            };
             resolve(array);
           } catch (error) {
-            logger.info(error);
+            if (logging) {logger.info(error)};
             reject(error);
           }
         })();
@@ -123,8 +134,10 @@ module.exports.find = (source) => {
       case 'pdf':
         (async () => {
           let array = [];
-          justin.write(`${funcName}.${source}`, array);
-          resolve(array);
+          if (logging) {
+            justin.write(`${funcName}.${source}`, array);
+          };
+          resolve();
         })();
         break;
       default:
@@ -133,7 +146,7 @@ module.exports.find = (source) => {
     }
   });
 };
-module.exports.get = (source, episodeObjects) => {
+module.exports.get = (source, episodeObjects,logging=true) => {
   /**
 
   Pulls the raw HTML for the episode URL given in the 'source'
@@ -147,6 +160,7 @@ module.exports.get = (source, episodeObjects) => {
     raw scrapped data of the transcript
 
   **/
+  if (logging) {logger = log4js.getLogger()};
   return new Promise(function (resolve, reject) {
     let funcName = 'get';
     switch(source) {
@@ -154,11 +168,13 @@ module.exports.get = (source, episodeObjects) => {
         (async () => {
           let itemsProcessed = 0;
           episodeObjects.forEach((episode, i, array) => {
-            logger.info(`
+            if (logging) {
+              logger.info(`
 Scrapping ${source} page ${i+1} / ${episodeObjects.length}
 URL: ${episode.transcript_url}
 Title: ${episode.title}
-              `);
+                `);
+            };
             const options = {
               uri: episode.transcript_url,
               transform: function (body) {
@@ -170,7 +186,9 @@ Title: ${episode.title}
                 episode.html = $('#WikiaArticle').html();
                 itemsProcessed++;
                 if(itemsProcessed === array.length) {
-                  justin.write(`${funcName}.${source}`, episodeObjects);
+                  if (logging) {
+                    justin.write(`${funcName}.${source}`, episodeObjects);
+                  }
                   resolve(episodeObjects);
                }
               }).catch(function (err) {
@@ -182,7 +200,7 @@ Title: ${episode.title}
       case 'wikia article':
         // code block
         break;
-      case 'gdoc':
+      case 'google doc':
         (async () => {
           // Fires up puppeteer in headless mode
           const browser = await puppeteer.launch({headless: true});
@@ -199,22 +217,26 @@ Title: ${episode.title}
               // Assigns all the HTML content of the page to a variable and then give cheerio access to it.
               const html = await page.content();
               const $ = cheerio.load(html);
-              logger.info(`
+              if (logging) {
+                logger.info(`
 Scrapping ${source} page ${i+1} / ${episodeObjects.length}
 URL: ${episodeObjects[i].transcript_url}
 Title: ${episodeObjects[i].title}
-                `);
+                  `);
+              };
               // Add the pages HTML to the episodeObject
               episodeObjects[i].html = $('#contents').html();
               //  Close current page
               await page.close();
             } // End for loop
             await browser.close();
-            justin.write(`${funcName}.${source}`, episodeObjects);
+            if (logging) {
+              justin.write(`${funcName}.${source}`, episodeObjects);
+            };
             resolve(episodeObjects);
           } catch (error) {
             await browser.close();
-            logger.info(error);
+            if (logging) {logger.info(error)};
           }
         })();
         break;
@@ -226,7 +248,7 @@ Title: ${episodeObjects[i].title}
     }
   });
 };
-module.exports.parse = (episodeObjects) => {
+module.exports.parse = (episodeObjects,logging=true) => {
   /**
 
   Parses the raw scraped data of a given transcript,
@@ -242,9 +264,10 @@ module.exports.parse = (episodeObjects) => {
     quotes scrapped from the episode
     raw scrapped data of the transcript
 
-  todo: add in error messages when an episode is not parsed. 
+  todo: add in error messages when an episode is not parsed.
 
   **/
+  if (logging) {logger = log4js.getLogger()};
   return new Promise(function (resolve, reject) {
     let funcName = 'parse';
     let processed = 0;
@@ -253,12 +276,14 @@ module.exports.parse = (episodeObjects) => {
         case 'wikia transcript':
           (async () => {
             try {
-              logger.info(`
+              if (logging) {
+                logger.info(`
 Parsing page ${i+1} / ${episodeObjects.length}
 URL: ${episode.transcript_url}
 Title: ${episode.title}
 Source: ${episode.source}
-                `);
+                  `);
+              };
               const $ = cheerio.load(episode.html);
               $('tr').each(function (i, elem) {
                 let text = $(this).text().replace(/\n/g, '');
@@ -296,15 +321,17 @@ Source: ${episode.source}
             }
           })();
           break;
-        case 'gdoc':
+        case 'google doc':
           (async () => {
             try {
-              logger.info(`
+              if (logging) {
+                logger.info(`
 Parsing page ${i+1} / ${episodeObjects.length}
 URL: ${episode.transcript_url}
 Title: ${episode.title}
 Source: ${episode.source}
-                `);
+                  `);
+              };
               const $ = cheerio.load(episode.html);
               let str;
               $('span').each(function(i, elem){
@@ -332,18 +359,21 @@ Source: ${episode.source}
           logger.error(`Uh oh, ${funcName} was called without a valid source`);
       }
       if(processed === episodeObjects.length) {
-        justin.write(`${funcName}`, episodeObjects);
+        if (logging) {
+          justin.write(`${funcName}`, episodeObjects);
+        };
         resolve(episodeObjects);
      }
    });
  });
 };
-module.exports.new = (source, array=null, log=null) => {
+module.exports.new = (source, array=null, prev=null, logging=true) => {
   /**
 
   Checks for new episodes that have not yet been indexed
 
   **/
+  if (logging) {logger = log4js.getLogger()};
   let funcName = 'new';
   switch(source) {
     case 'wikia transcript':
@@ -352,7 +382,7 @@ module.exports.new = (source, array=null, log=null) => {
     case 'wikia article':
       // code block
       break;
-    case 'gdoc':
+    case 'google doc':
       // code block
       break;
     case 'pdf':
@@ -363,12 +393,13 @@ module.exports.new = (source, array=null, log=null) => {
   }
   return true;
 };
-module.exports.add = (string, quotesObj) => {
+module.exports.add = (string, quotesObj, logging=true) => {
   /**
 
   Adds new properties to the episode object
 
   **/
+  if (logging) {logger = log4js.getLogger()};
   // This is going to need more work
   // Taken from addDownloadUrl.js
   return new Promise(function(resolve, reject) {
