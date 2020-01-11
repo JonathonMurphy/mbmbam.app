@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "griffin.js",
-    "test": "mocha"
+    "test": "mocha",
+    "tst": "nodemon ./test/clint.js"
   },
   "author": "Jonathon Seth Murphy",
   "license": "ISC",
@@ -20,5 +21,8 @@
     "query-string": "^6.9.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
   }
 }

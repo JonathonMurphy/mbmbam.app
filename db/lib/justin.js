@@ -19,7 +19,7 @@ const todaysDate = new Date();
 const today = `${todaysDate.getFullYear()}.${todaysDate.getMonth()+1}.${todaysDate.getDate()}`;
 log4js.configure({
   appenders: {
-    justin: { type: 'file', filename: `logs/console/${today}.justin.log` },
+    travis: { type: 'file', filename: `logs/console/${today}.travis.log` },
     console: { type: 'console'}
     // mailgun: {
     //   type: '@log4js-node/mailgun',
@@ -31,10 +31,12 @@ log4js.configure({
     // }
   },
   categories: {
-    default: { appenders: ['justin', 'console'], level: 'info' }
+    default: { appenders: ['travis', 'console'], level: 'info' },
+    console: { appenders: ['console'], level: 'info'  },
+    off: { appenders: ['console'], level: 'off'  }
   }
 });
-const logger = log4js.getLogger();
+let logger;
 
 /* Exported functions */
 function Episode (s, t, tU, pC=null, html=null, dU=null) {
@@ -68,7 +70,7 @@ function Episode (s, t, tU, pC=null, html=null, dU=null) {
   this.html = html;
 }
 module.exports.Episode = Episode;
-module.exports.write = (string, data, ext='json') => {
+module.exports.write = (string, data, ext='json', logging=true) => {
   /*
 
   string = title of the log file
@@ -81,6 +83,11 @@ module.exports.write = (string, data, ext='json') => {
   // today = `${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()}`;
 
   // Log action to console
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  };
   logger.info(`Logging data to ./logs/data/${today}.${string}.log.${ext}\n`);
 
   // Execute action of logging data to file
@@ -120,7 +127,6 @@ module.exports.sortQuote = (text, object) => {
     } else {
       object.quotes[speakerName] = [quoteText];
     }
-    // logger.info(`${speakerName}: ${quoteText}`);
   }
 
 };
@@ -188,7 +194,7 @@ module.exports.search = (arg) => {
     })
   })();
 };
-module.exports.cleanup = (directory, daysToKeep=5) => {
+module.exports.cleanup = (directory, daysToKeep=5, logging=true) => {
 /*
 
   This function is intended to clean up the logs
@@ -198,10 +204,15 @@ module.exports.cleanup = (directory, daysToKeep=5) => {
   deletes any files older than daysToKeep days old
 
 */
+if (logging) {
+  logger = log4js.getLogger();
+} else {
+  logger = log4js.getLogger('off');
+};
 return new Promise(function (resolve, reject) {
-  if (error) {
-    reject(error);
-  };
+  // if (error) {
+  //   reject(error);
+  // };
   let filenames = fs.readdirSync(directory);
   let processed = 0;
   filenames.forEach((filename) => {
@@ -210,7 +221,7 @@ return new Promise(function (resolve, reject) {
     const diffTime = Math.abs(todaysDate - fileDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     if (diffDays > daysToKeep) {
-      console.log(`Removing ${directory}${filename}`);
+      logger.info(`Removing ${directory}${filename}`);
       fs.unlinkSync(`${directory}${filename}`)
     }
     processed++;

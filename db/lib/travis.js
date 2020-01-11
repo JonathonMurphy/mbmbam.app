@@ -35,7 +35,9 @@ log4js.configure({
     // }
   },
   categories: {
-    default: { appenders: ['travis', 'console'], level: 'info' }
+    default: { appenders: ['travis', 'console'], level: 'info' },
+    console: { appenders: ['console'], level: 'info'  },
+    off: { appenders: ['console'], level: 'off'  }
   }
 });
 let logger;
@@ -53,7 +55,11 @@ module.exports.find = (source, logging=true) => {
     transcript url
 
   **/
-  if (logging) {logger = log4js.getLogger()};
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  };
   return new Promise(function (resolve, reject) {
     let funcName = 'find';
     switch(source) {
@@ -126,7 +132,7 @@ module.exports.find = (source, logging=true) => {
             };
             resolve(array);
           } catch (error) {
-            if (logging) {logger.info(error)};
+            logger.info(error);
             reject(error);
           }
         })();
@@ -146,7 +152,7 @@ module.exports.find = (source, logging=true) => {
     }
   });
 };
-module.exports.get = (source, episodeObjects,logging=true) => {
+module.exports.get = (source, episodeObjects, logging=true) => {
   /**
 
   Pulls the raw HTML for the episode URL given in the 'source'
@@ -160,7 +166,11 @@ module.exports.get = (source, episodeObjects,logging=true) => {
     raw scrapped data of the transcript
 
   **/
-  if (logging) {logger = log4js.getLogger()};
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  };
   return new Promise(function (resolve, reject) {
     let funcName = 'get';
     switch(source) {
@@ -168,13 +178,11 @@ module.exports.get = (source, episodeObjects,logging=true) => {
         (async () => {
           let itemsProcessed = 0;
           episodeObjects.forEach((episode, i, array) => {
-            if (logging) {
-              logger.info(`
+            logger.info(`
 Scrapping ${source} page ${i+1} / ${episodeObjects.length}
 URL: ${episode.transcript_url}
 Title: ${episode.title}
-                `);
-            };
+              `);
             const options = {
               uri: episode.transcript_url,
               transform: function (body) {
@@ -217,13 +225,11 @@ Title: ${episode.title}
               // Assigns all the HTML content of the page to a variable and then give cheerio access to it.
               const html = await page.content();
               const $ = cheerio.load(html);
-              if (logging) {
-                logger.info(`
+              logger.info(`
 Scrapping ${source} page ${i+1} / ${episodeObjects.length}
 URL: ${episodeObjects[i].transcript_url}
 Title: ${episodeObjects[i].title}
-                  `);
-              };
+                `);
               // Add the pages HTML to the episodeObject
               episodeObjects[i].html = $('#contents').html();
               //  Close current page
@@ -236,7 +242,7 @@ Title: ${episodeObjects[i].title}
             resolve(episodeObjects);
           } catch (error) {
             await browser.close();
-            if (logging) {logger.info(error)};
+            logger.info(error);
           }
         })();
         break;
@@ -248,7 +254,7 @@ Title: ${episodeObjects[i].title}
     }
   });
 };
-module.exports.parse = (episodeObjects,logging=true) => {
+module.exports.parse = (episodeObjects, logging=true) => {
   /**
 
   Parses the raw scraped data of a given transcript,
@@ -267,7 +273,11 @@ module.exports.parse = (episodeObjects,logging=true) => {
   todo: add in error messages when an episode is not parsed.
 
   **/
-  if (logging) {logger = log4js.getLogger()};
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  };
   return new Promise(function (resolve, reject) {
     let funcName = 'parse';
     let processed = 0;
@@ -276,14 +286,12 @@ module.exports.parse = (episodeObjects,logging=true) => {
         case 'wikia transcript':
           (async () => {
             try {
-              if (logging) {
-                logger.info(`
+              logger.info(`
 Parsing page ${i+1} / ${episodeObjects.length}
 URL: ${episode.transcript_url}
 Title: ${episode.title}
 Source: ${episode.source}
-                  `);
-              };
+                `);
               const $ = cheerio.load(episode.html);
               $('tr').each(function (i, elem) {
                 let text = $(this).text().replace(/\n/g, '');
@@ -324,14 +332,12 @@ Source: ${episode.source}
         case 'google doc':
           (async () => {
             try {
-              if (logging) {
-                logger.info(`
+              logger.info(`
 Parsing page ${i+1} / ${episodeObjects.length}
 URL: ${episode.transcript_url}
 Title: ${episode.title}
 Source: ${episode.source}
-                  `);
-              };
+                `);
               const $ = cheerio.load(episode.html);
               let str;
               $('span').each(function(i, elem){
@@ -373,7 +379,11 @@ module.exports.new = (source, array=null, prev=null, logging=true) => {
   Checks for new episodes that have not yet been indexed
 
   **/
-  if (logging) {logger = log4js.getLogger()};
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  };
   let funcName = 'new';
   switch(source) {
     case 'wikia transcript':
@@ -399,7 +409,11 @@ module.exports.add = (string, quotesObj, logging=true) => {
   Adds new properties to the episode object
 
   **/
-  if (logging) {logger = log4js.getLogger()};
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  };
   // This is going to need more work
   // Taken from addDownloadUrl.js
   return new Promise(function(resolve, reject) {
