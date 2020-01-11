@@ -6,7 +6,6 @@
   "scripts": {
     "start": "griffin.js",
     "test": "mocha",
-    "tst": "nodemon ./test/clint.js"
   },
   "author": "Jonathon Seth Murphy",
   "license": "ISC",

@@ -18,7 +18,7 @@ const regex = require('../lib/regex'),
 /* Global Variables */
 const todaysDate = new Date();
 const today = `${todaysDate.getFullYear()}.${todaysDate.getMonth()+1}.${todaysDate.getDate()}`;
-const repos = ['wikia transcript', 'google doc', 'pdf'];
+const repos = ['wikia transcript'];
 let found = {};
 let gotten = {};
 let parsed = {};
@@ -27,7 +27,7 @@ let parsed = {};
  describe('travis.js', function () {
 
   describe('travis.find()', function () {
-    this.timeout(20000000);
+    this.timeout(20000000000);
     it('is a function', function() {
       assert.isFunction(travis.find);
     });
@@ -56,17 +56,20 @@ let parsed = {};
           assert.isNumber(episode.number);
         }
       });
-      // TODO; Implement a test for URL validation
-      // it('\t\tobject.transcript_url is a valid address', function() {
-      //   for (let episode of found[repo]) {
-      //     /*
-      //       Make a request to the url from the episode
-      //       Maybe make two assert statments
-      //         one to check that a sting is in the fields
-      //         another to validate the address
-      //     */
-      //   };
-      // });
+      it('\t\tobject.transcript_url is a valid address', function() {
+        for (let episode of found[repo]) {
+          let options = {
+            method: 'GET',
+            uri: episode.transcript_url,
+            resolveWithFullResponse: true
+          };
+          rp(options)
+            .then(function (response) {
+              assert.equal(response.statusCode, 200)
+            })
+            .catch((err) => console.log(err))
+        };
+      });
       it(`\t\tall other fields should be 'null' or empty`, function() {
         for (let episode of found[repo]) {
           assert.isNull(episode.podcast);
@@ -79,8 +82,9 @@ let parsed = {};
   }); // end travis.find() tests
 
   describe('travis.get()', function () {
+    this.timeout(20000000000);
     it('is a function', function() {
-      assert.isFunction(travis.get);      // Test when home
+      assert.isFunction(travis.get);
     });
     repos.forEach(function(repo) {
       it(`${repo}`, async function() {
@@ -97,7 +101,7 @@ let parsed = {};
           // assert something here
         }
       });
-      it(`\t\tall other, not previously filled, fields should be 'null' or empty`, function() {
+      it(`\t\tall other, not previously filled fields should be 'null' or empty`, function() {
         for (let episode of gotten[repo]) {
           assert.isNull(episode.podcast);
           assert.isNull(episode.download_url);
@@ -108,12 +112,13 @@ let parsed = {};
   }); // end travis.get() tests
 
   describe('travis.parse()', function () {
+    this.timeout(20000000000);
     it('is a function', function() {
       assert.isFunction(travis.parse);
     });
     repos.forEach(function(repo) {
       it(`${repo}`, async function() {
-        parsed[repo] = await travis.parse(gotten[repo]);
+        parsed[repo] = await travis.parse(gotten[repo], false);
         assert.isArray(parsed[repo]);
       });
       it('\tthe array should contain only objects', function () {
@@ -154,7 +159,6 @@ let parsed = {};
   }); // end travis.add() tests
 
  });
-
 
 /* Tests for justin.js */
 describe('justin.js', function () {
