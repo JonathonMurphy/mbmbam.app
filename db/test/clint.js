@@ -18,7 +18,7 @@ const regex = require('../lib/regex'),
 /* Global Variables */
 const todaysDate = new Date();
 const today = `${todaysDate.getFullYear()}.${todaysDate.getMonth()+1}.${todaysDate.getDate()}`;
-const repos = ['wikia transcript'];
+const repos = ['pdf'];
 let found = {};
 let gotten = {};
 let parsed = {};

@@ -4,8 +4,8 @@
   "description": "Database and associated scripts for mbmbam-search application",
   "main": "index.js",
   "scripts": {
-    "start": "griffin.js",
-    "test": "mocha",
+    "start": "node ./griffin.js",
+    "test": "mocha"
   },
   "author": "Jonathon Seth Murphy",
   "license": "ISC",

@@ -59,7 +59,7 @@ module.exports.find = (source, logging=true) => {
     logger = log4js.getLogger();
   } else {
     logger = log4js.getLogger('off');
-  };
+  }
   return new Promise(function (resolve, reject) {
     let funcName = 'find';
     switch(source) {
@@ -94,7 +94,7 @@ module.exports.find = (source, logging=true) => {
           let array = [];
           if (logging) {
             justin.write(`${funcName}.${source}`, array);
-          };
+          }
           resolve();
         })();
         break;
@@ -129,7 +129,7 @@ module.exports.find = (source, logging=true) => {
             await browser.close();
             if (logging) {
               justin.write(`${funcName}.${source}`, array);
-            };
+            }
             resolve(array);
           } catch (error) {
             logger.info(error);
@@ -140,10 +140,46 @@ module.exports.find = (source, logging=true) => {
       case 'pdf':
         (async () => {
           let array = [];
-          if (logging) {
-            justin.write(`${funcName}.${source}`, array);
-          };
-          resolve();
+          let pageNumber = 1;
+          let repoAddress = 'https://maximumfun.org/podcasts/my-brother-my-brother-and-me/?_post-type=transcript&_paged=';
+          function createAddress (addr, num) {
+            num = num.toString();
+            return `${addr}${num}`;
+          }
+          function recursiveRequest() {
+            let options = {
+              uri: createAddress (repoAddress, pageNumber),
+              transform: function(body) {
+                return cheerio.load(body);
+              }
+            };
+            rp(options)
+              .then(function ($) {
+                let transcriptElements = $('.col-xl-3.col-lg-4.col-md-4.col-sm-6.col-6.latest-panel-loop-item');
+                transcriptElements.each(function (i, elem) {
+                  let transcriptData = $(this).children('.latest-panel-loop-item-title').find('a');
+                  let episodeObject = new justin.Episode(
+                    source,
+                    transcriptData.text(),
+                    transcriptData.attr('href')
+                  );
+                  array.push(episodeObject);
+                });
+                if (transcriptElements.length > 0) {
+                  pageNumber++;
+                  if (logging) {
+                    justin.write(`${funcName}.${source}`, array);
+                  }
+                  recursiveRequest();
+                }
+              })
+              .catch((error) => reject(error));
+          }
+          recursiveRequest();
+          // if (logging) {
+          //   justin.write(`${funcName}.${source}`, array);
+          // }
+          resolve(array);
         })();
         break;
       default:
@@ -170,7 +206,7 @@ module.exports.get = (source, episodeObjects, logging=true) => {
     logger = log4js.getLogger();
   } else {
     logger = log4js.getLogger('off');
-  };
+  }
   return new Promise(function (resolve, reject) {
     let funcName = 'get';
     switch(source) {
@@ -238,7 +274,7 @@ Title: ${episodeObjects[i].title}
             await browser.close();
             if (logging) {
               justin.write(`${funcName}.${source}`, episodeObjects);
-            };
+            }
             resolve(episodeObjects);
           } catch (error) {
             await browser.close();
@@ -247,7 +283,10 @@ Title: ${episodeObjects[i].title}
         })();
         break;
       case 'pdf':
-        // code block
+        (async () => {
+          let array;
+          resolve(episodeObjects)
+        })()
         break;
       default:
         logger.error(`Uh oh, ${funcName} was called without a valid source`);
@@ -277,7 +316,7 @@ module.exports.parse = (episodeObjects, logging=true) => {
     logger = log4js.getLogger();
   } else {
     logger = log4js.getLogger('off');
-  };
+  }
   return new Promise(function (resolve, reject) {
     let funcName = 'parse';
     let processed = 0;
@@ -359,7 +398,10 @@ Source: ${episode.source}
           })();
           break;
         case 'pdf':
-          // code block
+          (async () => {
+            let array;
+            resolve(episodeObjects)
+          })()
           break;
         default:
           logger.error(`Uh oh, ${funcName} was called without a valid source`);
@@ -367,7 +409,7 @@ Source: ${episode.source}
       if(processed === episodeObjects.length) {
         if (logging) {
           justin.write(`${funcName}`, episodeObjects);
-        };
+        }
         resolve(episodeObjects);
      }
    });
@@ -383,7 +425,7 @@ module.exports.new = (source, array=null, prev=null, logging=true) => {
     logger = log4js.getLogger();
   } else {
     logger = log4js.getLogger('off');
-  };
+  }
   let funcName = 'new';
   switch(source) {
     case 'wikia transcript':
@@ -413,7 +455,7 @@ module.exports.add = (string, quotesObj, logging=true) => {
     logger = log4js.getLogger();
   } else {
     logger = log4js.getLogger('off');
-  };
+  }
   // This is going to need more work
   // Taken from addDownloadUrl.js
   return new Promise(function(resolve, reject) {
