@@ -13,7 +13,7 @@ const { Client } = require('@elastic/elasticsearch'),
       fs = require('fs');
 
 /* Global Variables */
-const logDir = path.resolve(__dirname, '../logs/data/')
+const logDir = path.resolve(__dirname, '../logs/data/');
 
 /* Logging configuration */
 // TODO: Add in an appender that will
@@ -90,7 +90,7 @@ module.exports.write = (string, data, ext='json', logging=true) => {
     logger = log4js.getLogger();
   } else {
     logger = log4js.getLogger('off');
-  };
+  }
   logger.info(`Logging data to ${logDir}/${today}.${string}.log.${ext}\n`);
 
   // Execute action of logging data to file
@@ -113,7 +113,7 @@ module.exports.sting2array = (string, regExp) => {
     });
   }
   return array;
-}
+};
 module.exports.sortQuote = (text, object) => {
   /**
 
@@ -180,11 +180,11 @@ module.exports.createIndex = (quotesObj) => {
 module.exports.index = (indexObejct) => {
   return new Promise(function (resolve, reject) {
     (async () => {
-      for (indexFile of indexFiles) {
-      await client.index(indexFile)
+      for (let indexFile of indexFiles) {
+      await client.index(indexFile);
     }
-    })()
-  })
+  })();
+});
 };
 module.exports.search = (arg) => {
   (async () => {
@@ -198,12 +198,12 @@ module.exports.search = (arg) => {
           }
         }
       }
-    })
+    });
 
     body.hits.hits.forEach(function(hit) {
-      console.log(hit)
-      console.log("\n")
-    })
+      console.log(hit);
+      console.log("\n");
+    });
   })();
 };
 module.exports.cleanup = (directory, daysToKeep=5, logging=true) => {
@@ -220,7 +220,7 @@ if (logging) {
   logger = log4js.getLogger();
 } else {
   logger = log4js.getLogger('off');
-};
+}
 return new Promise(function (resolve, reject) {
   // if (error) {
   //   reject(error);
@@ -234,14 +234,14 @@ return new Promise(function (resolve, reject) {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     if (diffDays > daysToKeep) {
       logger.info(`Removing ${directory}${filename}`);
-      fs.unlinkSync(`${directory}${filename}`)
+      fs.unlinkSync(`${directory}${filename}`);
     }
     processed++;
     if (processed === filenames.length) {
       resolve();
     }
   });
-})
+});
 };
 module.exports.stats = (episodeObjects, logging=true) => {
 /*
@@ -253,24 +253,37 @@ if (logging) {
   logger = log4js.getLogger();
 } else {
   logger = log4js.getLogger('off');
-};
+}
+
 function count (source) {
   let count = 0;
   episodeObjects.forEach(function(object) {
     if (object.source === source) {
-      count++
+      count++;
     }
   });
   return count;
   }
-  const objectCount = episodeObjects.length;
-  const wikiaCount = count('wikia transcript');
-  const gDocCount = count('google doc');
-  const pdfCount = count('pdf');
+  function episodeNumbers (episodes) {
+    let array = [];
+    episodes.forEach(function (episode) {
+      array.push(episode.number);
+    })
+    return array;
+  }
+
+  let statObject = {
+    total: episodeObjects.length,
+    wikia: count('wikia transcript'),
+    gdoc: count('google doc'),
+    pdf: count('pdf'),
+    numbers: episodeNumbers(episodeObjects)
+  };
   logger.info(`
-Total Number of Episodes: ${objectCount}
-  From Wikia Transcripts: ${wikiaCount}
-        From Google Docs: ${gDocCount}
-              From PDF's: ${pdfCount}
+Total Number of Episodes: ${statObject.total}
+  From Wikia Transcripts: ${statObject.wikia}
+        From Google Docs: ${statObject.gdoc}
+              From PDF's: ${statObject.pdf}
   `);
+  return statObject;
 };

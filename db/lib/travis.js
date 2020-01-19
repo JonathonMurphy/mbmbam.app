@@ -460,7 +460,14 @@ module.exports.check = (episodeObjects, logging=true) => {
 /*
 
   Checks that all the episodes within the array have atleast one quote
-  Returns an array containing all the episodes with no quotes
+  and that there are no duplicate's.
+    In the event of a duplicate it favors in this orders
+      PDF -> Google Docs -> Wikia Transcripts
+
+      THAT'S A LIE... Currently there's no preference to which is removed
+
+  Returns an array containing no duplicate episodes
+  and no empty quote sections
 
 */
   if (logging) {
@@ -469,40 +476,36 @@ module.exports.check = (episodeObjects, logging=true) => {
     logger = log4js.getLogger('off');
   }
   return new Promise(function (resolve, reject) {
-    const noQuotes = [];
+    let noQuotes = []
+    episodeObjects.sort((a, b) => {return a.number - b.number});
+    justin.write('sorted', episodeObjects);
     episodeObjects.forEach(function(episode, i) {
-      if (Object.keys(episode.quotes).length === 0) {
-        episode.originalIndex = i;
-        noQuotes.push(episode);
+      if (i+1 < episodeObjects.length) {
+        if (episode.number == episodeObjects[i+1].number && episode.number !== 0) {
+          logger.info(`
+Duplicate Found!
+${episode.number}: ${episode.transcript_url}
+${episodeObjects[i+1].number}: ${episodeObjects[i+1].transcript_url}
+`);
+          episodeObjects.splice(i, 1);
+        }
+        if (Object.keys(episode.quotes).length === 0) {
+          logger.info(`
+Empty episode removed
+${episode.number}: ${episode.transcript_url}
+`);
+          noQuotes.push(episode);
+          episodeObjects.splice(i, 1);
+        }
       }
     });
     if (logging) {
       justin.write('noQuotes', noQuotes);
-    }
-    resolve(noQuotes);
-  })
-};
-module.exports.cleanup = (episodeObjects, noQuotes, logging=true) => {
-/*
-
-  Removes any episodes with no quotes from the main object
-
-*/
-  if (logging) {
-    logger = log4js.getLogger();
-  } else {
-    logger = log4js.getLogger('off');
-  }
-  return new Promise(function (resolve, reject) {
-    noQuotes.forEach(function (noQuote) {
-      episodeObjects.splice(noQuote.originalIndex, 1);
-    });
-    if (logging) {
-      justin.write('cleaned', episodeObjects);
+      justin.write('checked', episodeObjects);
     }
     resolve(episodeObjects);
   })
-}
+};
 module.exports.new = (source, array=null, prev=null, logging=true) => {
   /**
 
