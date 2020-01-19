@@ -307,7 +307,6 @@ Title: ${episodeObjects[i].title}
                 let data = await pdf(buffer);
                 episode.html = data.text;
                 processed++;
-                console.log(data.text.substr(0, 33));
                 if (processed === episodeObjects.length) {
                   if (logging) {
                     justin.write(`${funcName}.${source}`, episodeObjects);
@@ -355,16 +354,16 @@ module.exports.parse = (episodeObjects, logging=true) => {
     let funcName = 'parse';
     let processed = 0;
     episodeObjects.forEach((episode, i) => {
-      switch(episode.source) {
-        case 'wikia transcript':
-          (async () => {
-            try {
-              logger.info(`
+      logger.info(`
 Parsing page ${i+1} / ${episodeObjects.length}
 URL: ${episode.transcript_url}
 Title: ${episode.title}
 Source: ${episode.source}
-                `);
+        `);
+      switch(episode.source) {
+        case 'wikia transcript':
+          (async () => {
+            try {
               const $ = cheerio.load(episode.html);
               $('tr').each(function (i, elem) {
                 let text = $(this).text().replace(/\n/g, '');
@@ -405,22 +404,12 @@ Source: ${episode.source}
         case 'google doc':
           (async () => {
             try {
-              logger.info(`
-Parsing page ${i+1} / ${episodeObjects.length}
-URL: ${episode.transcript_url}
-Title: ${episode.title}
-Source: ${episode.source}
-                `);
               const $ = cheerio.load(episode.html);
               let str;
               $('span').each(function(i, elem){
                 str += $(this).text() + '\n';
               });
-              let regexMatches = [];
-              regexMatches = str.match(regex.superQuote);
-              regexMatches.map(function(entry, index, array){
-                array[index] = entry.replace(/\r?\n|\r/g, '');
-              });
+              let regexMatches = justin.sting2array(str, regex.superQuote);
               regexMatches.forEach(function(match) {
                 justin.sortQuote(match, episode);
               });
@@ -433,8 +422,17 @@ Source: ${episode.source}
           break;
         case 'pdf':
           (async () => {
-            let array;
-            resolve(episodeObjects)
+            try {
+              let regexMatches = justin.sting2array(episode.html, regex.pdfFilter);
+              regexMatches.forEach(function(match) {
+                justin.sortQuote(match, episode);
+              });
+              processed++
+            }
+            catch (error) {
+              logger.error(error);
+              reject(error);
+            }
           })()
           break;
         default:

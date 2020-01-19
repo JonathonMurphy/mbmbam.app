@@ -105,6 +105,13 @@ module.exports.write = (string, data, ext='json', logging=true) => {
   // // Execute the callback function if one was passed
   // callback();
 };
+module.exports.sting2array = (string, regExp) => {
+  let array = string.match(regExp);
+  array.map(function(entry, index, array){
+    array[index] = entry.replace(/\r?\n|\r/g, '');
+  });
+  return array;
+}
 module.exports.sortQuote = (text, object) => {
   /**
 
