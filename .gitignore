@@ -13,7 +13,14 @@ db/logs/data/*
 db/logs/console/*
 !db/logs/console/.gitkeep
 
-db/scratchpad.*
+db/logs/pdfs/*
+!db/logs/pdfs/.gitkeep
+
+db/logs/html/*
+!db/logs/html/.gitkeep
+
+db/scratchpad*
+db/pdfTest.js
 
 db/test/cleanup/*
 !db/test/cleanup/.gitkeep
