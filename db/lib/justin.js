@@ -107,9 +107,11 @@ module.exports.write = (string, data, ext='json', logging=true) => {
 };
 module.exports.sting2array = (string, regExp) => {
   let array = string.match(regExp);
-  array.map(function(entry, index, array){
-    array[index] = entry.replace(/\r?\n|\r/g, '');
-  });
+  if (array !==  null) {
+    array.map(function(entry, index, array){
+      array[index] = entry.replace(/\r?\n|\r/g, '');
+    });
+  }
   return array;
 }
 module.exports.sortQuote = (text, object) => {
@@ -240,4 +242,35 @@ return new Promise(function (resolve, reject) {
     }
   });
 })
+};
+module.exports.stats = (episodeObjects, logging=true) => {
+/*
+
+  Logs stats about the episodeObjects array
+
+*/
+if (logging) {
+  logger = log4js.getLogger();
+} else {
+  logger = log4js.getLogger('off');
+};
+function count (source) {
+  let count = 0;
+  episodeObjects.forEach(function(object) {
+    if (object.source === source) {
+      count++
+    }
+  });
+  return count;
+  }
+  const objectCount = episodeObjects.length;
+  const wikiaCount = count('wikia transcript');
+  const gDocCount = count('google doc');
+  const pdfCount = count('pdf');
+  logger.info(`
+Total Number of Episodes: ${objectCount}
+  From Wikia Transcripts: ${wikiaCount}
+        From Google Docs: ${gDocCount}
+              From PDF's: ${pdfCount}
+  `);
 };

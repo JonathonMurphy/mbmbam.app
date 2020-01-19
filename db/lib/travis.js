@@ -306,6 +306,11 @@ Title: ${episodeObjects[i].title}
                 let buffer = Buffer.from(response);
                 let data = await pdf(buffer);
                 episode.html = data.text;
+                logger.info(`
+Scrapping ${source} page ${i+1} / ${episodeObjects.length}
+URL: ${episodeObjects[i].transcript_url}
+Title: ${episodeObjects[i].title}
+                  `);
                 processed++;
                 if (processed === episodeObjects.length) {
                   if (logging) {
@@ -410,9 +415,11 @@ Source: ${episode.source}
                 str += $(this).text() + '\n';
               });
               let regexMatches = justin.sting2array(str, regex.superQuote);
-              regexMatches.forEach(function(match) {
-                justin.sortQuote(match, episode);
-              });
+              if (regexMatches !== null) {
+                regexMatches.forEach(function(match) {
+                  justin.sortQuote(match, episode);
+                });
+              }
               processed++;
             } catch (error) {
               logger.error(error);
@@ -424,9 +431,11 @@ Source: ${episode.source}
           (async () => {
             try {
               let regexMatches = justin.sting2array(episode.html, regex.pdfFilter);
-              regexMatches.forEach(function(match) {
-                justin.sortQuote(match, episode);
-              });
+              if (regexMatches !== null) {
+                regexMatches.forEach(function(match) {
+                  justin.sortQuote(match, episode);
+                });
+              }
               processed++
             }
             catch (error) {
@@ -447,6 +456,53 @@ Source: ${episode.source}
    });
  });
 };
+module.exports.check = (episodeObjects, logging=true) => {
+/*
+
+  Checks that all the episodes within the array have atleast one quote
+  Returns an array containing all the episodes with no quotes
+
+*/
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  }
+  return new Promise(function (resolve, reject) {
+    const noQuotes = [];
+    episodeObjects.forEach(function(episode, i) {
+      if (Object.keys(episode.quotes).length === 0) {
+        episode.originalIndex = i;
+        noQuotes.push(episode);
+      }
+    });
+    if (logging) {
+      justin.write('noQuotes', noQuotes);
+    }
+    resolve(noQuotes);
+  })
+};
+module.exports.cleanup = (episodeObjects, noQuotes, logging=true) => {
+/*
+
+  Removes any episodes with no quotes from the main object
+
+*/
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  }
+  return new Promise(function (resolve, reject) {
+    noQuotes.forEach(function (noQuote) {
+      episodeObjects.splice(noQuote.originalIndex, 1);
+    });
+    if (logging) {
+      justin.write('cleaned', episodeObjects);
+    }
+    resolve(episodeObjects);
+  })
+}
 module.exports.new = (source, array=null, prev=null, logging=true) => {
   /**
 

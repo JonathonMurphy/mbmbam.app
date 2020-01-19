@@ -13,6 +13,8 @@ const logDirectories = ['./logs/console/', './logs/data/']
 let found;
 let gotten = [];
 let parsed;
+let noquotes;
+let cleaned;
 let processed = 0;
 
 (async() => {
@@ -28,6 +30,9 @@ let processed = 0;
     if(processed === repos.length) {
       justin.write('gotten', gotten);
       parsed = await travis.parse(gotten);
+      noquotes = await travis.check(parsed);
+      cleaned = await travis.cleanup(parsed, noquotes);
+      justin.stats(cleaned);
    }
   });
 })();
