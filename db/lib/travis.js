@@ -7,13 +7,16 @@
 /* Dependencies */
 const Wikiaapi = require('nodewikiaapi'),
       wiki = 'http://mbmbam.wikia.com',
-      puppeteer = require('puppeteer'),
+      puppeteer = require('puppeteer-extra'),
       mywiki = new Wikiaapi('mbmbam'),
       rp = require('request-promise'),
+      chokidar = require('chokidar'),
       cheerio = require('cheerio'),
       justin = require('./justin'),
       regex = require('./regex'),
-      log4js = require('log4js');
+      log4js = require('log4js'),
+      pdf = require('pdf-parse'),
+      path = require('path');
 
 
 /* Logging configuration */
@@ -95,7 +98,7 @@ module.exports.find = (source, logging=true) => {
           if (logging) {
             justin.write(`${funcName}.${source}`, array);
           }
-          resolve();
+          resolve(array);
         })();
         break;
       case 'google doc':
@@ -167,19 +170,17 @@ module.exports.find = (source, logging=true) => {
                 });
                 if (transcriptElements.length > 0) {
                   pageNumber++;
+                  recursiveRequest();
+                } else {
                   if (logging) {
                     justin.write(`${funcName}.${source}`, array);
                   }
-                  recursiveRequest();
+                  resolve(array);
                 }
               })
               .catch((error) => reject(error));
           }
           recursiveRequest();
-          // if (logging) {
-          //   justin.write(`${funcName}.${source}`, array);
-          // }
-          resolve(array);
         })();
         break;
       default:
@@ -195,11 +196,11 @@ module.exports.get = (source, episodeObjects, logging=true) => {
   argument, and adds it to the episodeObject
 
   Returns an array of objects containing
-    source of the transcript
-    title of the episode
-    episode number
-    transcript url
-    raw scrapped data of the transcript
+    source: source of the transcript
+    title: title of the episode
+    number: episode number
+    transcript_url: url the transcript  is from
+    html: raw scrapped data of the transcript
 
   **/
   if (logging) {
@@ -212,7 +213,7 @@ module.exports.get = (source, episodeObjects, logging=true) => {
     switch(source) {
       case 'wikia transcript':
         (async () => {
-          let itemsProcessed = 0;
+          let processed = 0;
           episodeObjects.forEach((episode, i, array) => {
             logger.info(`
 Scrapping ${source} page ${i+1} / ${episodeObjects.length}
@@ -228,8 +229,8 @@ Title: ${episode.title}
             rp(options)
               .then(function ($) {
                 episode.html = $('#WikiaArticle').html();
-                itemsProcessed++;
-                if(itemsProcessed === array.length) {
+                processed++;
+                if(processed === array.length) {
                   if (logging) {
                     justin.write(`${funcName}.${source}`, episodeObjects);
                   }
@@ -284,9 +285,42 @@ Title: ${episodeObjects[i].title}
         break;
       case 'pdf':
         (async () => {
-          let array;
-          resolve(episodeObjects)
-        })()
+          try {
+            let processed = 0;
+            episodeObjects.forEach(async (episode, i, array) => {
+                let $ = await rp({
+                    uri: episode.transcript_url,
+                    transform: function(body) {
+                      return cheerio.load(body);
+                    }
+                  });
+                let pdfUrl = $('.btn-transcript-download').attr('href');
+                let response = await rp({
+                    uri: pdfUrl,
+                    method: 'GET',
+                    encoding: null,
+                    headers: {
+                      'Content-type': 'application/pdf'
+                    }
+                  });
+                let buffer = Buffer.from(response);
+                let data = await pdf(buffer);
+                episode.html = data.text;
+                processed++;
+                console.log(data.text.substr(0, 33));
+                if (processed === episodeObjects.length) {
+                  if (logging) {
+                    justin.write(`${funcName}.${source}`, episodeObjects);
+                  }
+                  resolve(episodeObjects);
+                }
+              });
+          }
+          catch (err) {
+            console.error(err)
+          }
+
+        })();
         break;
       default:
         logger.error(`Uh oh, ${funcName} was called without a valid source`);

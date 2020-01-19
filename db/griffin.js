@@ -7,7 +7,7 @@ const justin = require('./lib/justin'),
       fs = require('fs');
 
 /* Global Variables */
-const repos = ['pdf'];
+const repos = ['wikia transcript', 'google doc', 'pdf'];
 const logDirectories = ['./logs/console/', './logs/data/']
 
 let found;

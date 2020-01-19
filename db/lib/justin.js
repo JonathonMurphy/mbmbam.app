@@ -12,6 +12,9 @@ const { Client } = require('@elastic/elasticsearch'),
       path = require('path'),
       fs = require('fs');
 
+/* Global Variables */
+const logDir = path.resolve(__dirname, '../logs/data/')
+
 /* Logging configuration */
 // TODO: Add in an appender that will
 // send out an email to us if certain conditions are met
@@ -88,15 +91,15 @@ module.exports.write = (string, data, ext='json', logging=true) => {
   } else {
     logger = log4js.getLogger('off');
   };
-  logger.info(`Logging data to ./logs/data/${today}.${string}.log.${ext}\n`);
+  logger.info(`Logging data to ${logDir}/${today}.${string}.log.${ext}\n`);
 
   // Execute action of logging data to file
   switch(ext) {
     case 'json':
-      fs.writeFileSync(`./logs/data/${today}.${string}.log.${ext}`, JSON.stringify(data));
+      fs.writeFileSync(`${logDir}/${today}.${string}.log.${ext}`, JSON.stringify(data));
       break;
     default:
-      fs.writeFileSync(`./logs/data/${today}.${string}.log.${ext}`, data);
+      fs.writeFileSync(`${logDir}/${today}.${string}.log.${ext}`, data);
   }
   // TODO: Add callback functionality
   // // Execute the callback function if one was passed

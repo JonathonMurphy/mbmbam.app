@@ -1,8 +1,9 @@
 {
   "name": "mbmbam-search-db",
   "version": "1.0.0",
-  "description": "Database and associated scripts for mbmbam-search application",
-  "main": "index.js",
+  "description": "Application for web scraping and indexing McElroy brothers quotes.",
+  "main": "griffin.js",
+  "repository": "https://github.com/JonathonMurphy/mbmbam.app",
   "scripts": {
     "start": "node ./griffin.js",
     "test": "mocha"
@@ -13,10 +14,15 @@
     "@elastic/elasticsearch": "^7.1.0",
     "chai": "^4.2.0",
     "cheerio": "^1.0.0-rc.3",
+    "chokidar": "^3.3.1",
     "log4js": "^6.1.0",
     "mocha": "^6.2.2",
     "nodewikiaapi": "^2.0.3",
+    "pdf-parse": "^1.1.1",
     "puppeteer": "^2.0.0",
+    "puppeteer-extra": "^3.1.9",
+    "puppeteer-extra-plugin-user-data-dir": "^2.2.4",
+    "puppeteer-extra-plugin-user-preferences": "^2.2.4",
     "query-string": "^6.9.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"
