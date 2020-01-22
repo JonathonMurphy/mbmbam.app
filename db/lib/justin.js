@@ -142,46 +142,53 @@ module.exports.sortQuote = (text, object) => {
   }
 
 };
-module.exports.createIndex = (quotesObj) => {
+module.exports.createIndex = (episodes) => {
   /**
 
-  Documentation goes here!
+    This function takes the finished array of episodes
+    and returns an new array of objects that are ready
+    to be indexed into Elasticsearch.
 
   **/
-  // Taken from createIndexFile.js
   let index = [];
-  // Need to add a section to determine if the speaker is a McElroy, and a section for the episode download/listen to url
-  class IndexObejct {
-    constructor(episode, speaker, quote, url_scraped_from, download_url) {
+  class IndexObject {
+    constructor(episode, speaker, quote) {
       this.index = 'mbmbam-search',
       this.type = 'quote',
       this.body = {},
-      this.body.episode = episode,
-      this.body.speaker = speaker,
-            this.body.is_mcelroy = regex.mcelroy.test(speaker),
-            this.body.quote = quote,
-            this.body.url_scraped_from = url_scraped_from,
-            this.body.download_url = download_url;
+        this.body.episode = episode.title,
+        this.body.number = episode.number,
+        this.body.speaker = speaker,
+        this.body.is_mcelroy = regex.mcelroy.test(speaker),
+        this.body.quote = quote,
+        this.body.url_scraped_from = episode.transcript_url,
+        this.body.download_url = episode.download_url;
           }
         }
-        quotesObj.episodes.forEach(function(episode) {
-          for (var speaker in episode.quotes) {
-            if (episode.quotes.hasOwnProperty(speaker)) {
-              let speakerQuote = episode.quotes[speaker];
-              speakerQuote.forEach(function(quote) {
-                let newQuote = new IndexObejct (episode.episode, speaker, quote, episode.url, episode.download_url);
-                index.push(newQuote);
-              });
-            }
-          }
+        episodes.forEach(function(episode) {
+          Object.keys(episode.quotes).forEach(function (speaker) {
+            console.log(speaker)
+            let quotes = episode.quotes[speaker];
+            quotes.forEach(function(quote) {
+              let newQuote = new IndexObject (episode, speaker, quote);
+              index.push(newQuote);
+            });
+          });
         });
         return index;
       };
-module.exports.index = (indexObejct) => {
+module.exports.index = (indexObjects) => {
+  /**
+
+    Takes in an array of objects ready to be consumed by
+    Elasticsearch and indexs them one by one into our
+    instance of AWS Elasticsearch
+
+  **/
   return new Promise(function (resolve, reject) {
     (async () => {
-      for (let indexFile of indexFiles) {
-      await client.index(indexFile);
+      for (let indexObject of indexObjects) {
+      await client.index(indexObject);
     }
   })();
 });
