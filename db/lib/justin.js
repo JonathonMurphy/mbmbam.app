@@ -7,6 +7,7 @@
 /* Dependencies */
 const { Client } = require('@elastic/elasticsearch'),
       client = new Client({node: 'https://vpc-mbmbam-jb5nrxn3lk3epnc44z74hgccfu.us-east-2.es.amazonaws.com'}),
+      hash = require('object-hash'),
       regex = require('./regex'),
       log4js = require('log4js'),
       path = require('path'),
@@ -142,7 +143,7 @@ module.exports.sortQuote = (text, object) => {
   }
 
 };
-module.exports.createIndex = (episodes) => {
+module.exports.createIndex = (type, episodes) => {
   /**
 
     This function takes the finished array of episodes
@@ -151,32 +152,39 @@ module.exports.createIndex = (episodes) => {
 
   **/
   let index = [];
-  class IndexObject {
-    constructor(episode, speaker, quote) {
-      this.index = 'mbmbam-search',
-      this.type = 'quote',
-      this.body = {},
-        this.body.episode = episode.title,
-        this.body.number = episode.number,
-        this.body.speaker = speaker,
-        this.body.is_mcelroy = regex.mcelroy.test(speaker),
-        this.body.quote = quote,
-        this.body.url_scraped_from = episode.transcript_url,
-        this.body.download_url = episode.download_url;
-          }
-        }
-        episodes.forEach(function(episode) {
-          Object.keys(episode.quotes).forEach(function (speaker) {
-            console.log(speaker)
-            let quotes = episode.quotes[speaker];
-            quotes.forEach(function(quote) {
-              let newQuote = new IndexObject (episode, speaker, quote);
-              index.push(newQuote);
+  switch (type) {
+    case 'quote':
+      class IndexObject {
+        constructor(episode, speaker, quote) {
+          this.index = 'mbmbam-search',
+          this.type = 'quote',
+          this.body = {},
+            this.body.id = null;
+            this.body.podcast = episode.podcast,
+            this.body.episode = episode.title,
+            this.body.number = episode.number,
+            this.body.speaker = speaker,
+            this.body.is_mcelroy = regex.mcelroy.test(speaker),
+            this.body.quote = quote,
+            this.body.url_scraped_from = episode.transcript_url,
+            this.body.download_url = episode.download_url;
+              }
+            }
+            episodes.forEach(function(episode) {
+              Object.keys(episode.quotes).forEach(function (speaker) {
+                let quotes = episode.quotes[speaker];
+                quotes.forEach(function(quote) {
+                  let newQuote = new IndexObject (episode, speaker, quote);
+                  index.push(newQuote);
+                });
+              });
             });
-          });
-        });
         return index;
-      };
+      break;
+    default:
+      return index;
+  }
+};
 module.exports.index = (indexObjects) => {
   /**
 
@@ -294,3 +302,12 @@ Total Number of Episodes: ${statObject.total}
   `);
   return statObject;
 };
+module.exports.giveID = (indexObjects) => {
+  for (let indexObject of indexObjects) {
+    indexObject.body.id = hash([
+      indexObject.body.number,
+      indexObject.body.speaker,
+      indexObject.body.quote
+    ]);
+  }
+}

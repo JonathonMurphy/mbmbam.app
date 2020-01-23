@@ -18,6 +18,7 @@
     "log4js": "^6.1.0",
     "mocha": "^6.2.2",
     "nodewikiaapi": "^2.0.3",
+    "object-hash": "^2.0.1",
     "pdf-parse": "^1.1.1",
     "puppeteer": "^2.0.0",
     "puppeteer-extra": "^3.1.9",
