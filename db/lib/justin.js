@@ -303,6 +303,13 @@ Total Number of Episodes: ${statObject.total}
   return statObject;
 };
 module.exports.giveID = (indexObjects) => {
+/*
+
+  Takes a hash of an indexes episode number,
+  speaker, and quote, and assigned it as the id
+  for that index.
+
+*/
   for (let indexObject of indexObjects) {
     indexObject.body.id = hash([
       indexObject.body.number,
