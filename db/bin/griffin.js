@@ -2,13 +2,13 @@
 /*jshint esversion: 8 */
 
 /* Dependencies */
-const justin = require('./lib/justin'),
-      travis = require('./lib/travis'),
+const justin = require('../lib/justin'),
+      travis = require('../lib/travis'),
       fs = require('fs');
 
 /* Global Variables */
 const repos = ['wikia transcript', 'google doc', 'pdf'];
-const logDirectories = ['./logs/console/', './logs/data/']
+const logDirectories = ['../logs/console/', '../logs/data/']
 
 let found;
 let gotten = [];
