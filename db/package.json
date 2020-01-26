@@ -1,11 +1,11 @@
 {
   "name": "mbmbam-search-db",
-  "version": "1.0.0",
+  "version": "2.9.0",
   "description": "Application for web scraping and indexing McElroy brothers quotes.",
-  "main": "griffin.js",
+  "main": "bin/griffin.js",
   "repository": "https://github.com/JonathonMurphy/mbmbam.app",
   "scripts": {
-    "start": "node ./griffin.js",
+    "start": "node ./bin/griffin.js",
     "test": "mocha"
   },
   "author": "Jonathon Seth Murphy",
@@ -27,8 +27,5 @@
     "query-string": "^6.9.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.2"
   }
 }
