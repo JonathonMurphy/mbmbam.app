@@ -26,7 +26,7 @@ let today = new Date();
 today = `${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()}`;
 log4js.configure({
   appenders: {
-    travis: { type: 'file', filename: `logs/console/${today}.travis.log` },
+    travis: { type: 'file', filename: `../logs/console/${today}.travis.log` },
     console: { type: 'console'}
     // mailgun: {
     //   type: '@log4js-node/mailgun',
@@ -321,7 +321,7 @@ Title: ${episodeObjects[i].title}
               });
           }
           catch (err) {
-            console.error(err)
+            console.error(err);
           }
 
         })();
@@ -436,13 +436,13 @@ Source: ${episode.source}
                   justin.sortQuote(match, episode);
                 });
               }
-              processed++
+              processed++;
             }
             catch (error) {
               logger.error(error);
               reject(error);
             }
-          })()
+          })();
           break;
         default:
           logger.error(`Uh oh, ${funcName} was called without a valid source`);
@@ -476,7 +476,7 @@ module.exports.check = (episodeObjects, logging=true) => {
     logger = log4js.getLogger('off');
   }
   return new Promise(function (resolve, reject) {
-    let noQuotes = []
+    let noQuotes = [];
     episodeObjects.sort((a, b) => {return a.number - b.number});
     justin.write('sorted', episodeObjects);
     episodeObjects.forEach(function(episode, i) {
@@ -504,7 +504,7 @@ ${episode.number}: ${episode.transcript_url}
       justin.write('checked', episodeObjects);
     }
     resolve(episodeObjects);
-  })
+  });
 };
 module.exports.new = (source, array=null, prev=null, logging=true) => {
   /**
@@ -536,7 +536,7 @@ module.exports.new = (source, array=null, prev=null, logging=true) => {
   }
   return true;
 };
-module.exports.add = (string, quotesObj, logging=true) => {
+module.exports.add = (string, episodeObjects, logging=true) => {
   /**
 
   Adds new properties to the episode object
@@ -553,7 +553,6 @@ module.exports.add = (string, quotesObj, logging=true) => {
     let funcName = 'add';
     switch(string) {
       case 'download url':
-        const epNumRegex = /\d{2,}/;
         const options = {
           uri: 'http://mbmbam.libsyn.com/rss',
           transform: function (body) {
@@ -584,14 +583,8 @@ module.exports.add = (string, quotesObj, logging=true) => {
             $('link').each(function() {
               links.push($(this).text());
             });
-            quotesObj.episodes.forEach(function(episode) {
-              let eisodeNumber;
-              if (episode.episode.match(epNumRegex) != null) {
-                episodeNumber = Number(episode.episode.match(epNumRegex)[0]);
-              } else {
-                episodeNumber = 'n/a';
-              }
-              let findUrlRegex = regexConstructor(episodeNumber);
+            episodeObjects.forEach(function(episode) {
+              let findUrlRegex = regexConstructor(episode.number);
               links.forEach(function(link) {
                 if (link.match(findUrlRegex) != null) {
                   episode.download_url = link;
@@ -599,10 +592,14 @@ module.exports.add = (string, quotesObj, logging=true) => {
               });
             });
           })
-          .then(function() {
-            return quotesObj;
+          .then(() => {
+            justin.write(funcName, episodeObjects);
+            resolve(episodeObjects);
           })
-          .catch((err) => logger.error(err));
+          .catch((err) => {
+            logger.error(err);
+            reject(err);
+          });
         break;
       default:
         logger.error(`Uh oh, ${funcName} was called without a valid source`);

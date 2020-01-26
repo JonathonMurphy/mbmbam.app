@@ -23,7 +23,7 @@ const todaysDate = new Date();
 const today = `${todaysDate.getFullYear()}.${todaysDate.getMonth()+1}.${todaysDate.getDate()}`;
 log4js.configure({
   appenders: {
-    travis: { type: 'file', filename: `logs/console/${today}.travis.log` },
+    travis: { type: 'file', filename: `../logs/console/${today}.travis.log` },
     console: { type: 'console'}
     // mailgun: {
     //   type: '@log4js-node/mailgun',
