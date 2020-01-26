@@ -8,7 +8,10 @@ const justin = require('../lib/justin'),
 
 /* Global Variables */
 const repos = ['wikia transcript', 'google doc', 'pdf'];
-const logDirectories = ['../logs/console/', '../logs/data/']
+const logDirectories = [
+  path.resolve(__dirname, '../logs/console/'),
+  path.resolve(__dirname, '../logs/data/')
+];
 
 let found;
 let gotten = [];
