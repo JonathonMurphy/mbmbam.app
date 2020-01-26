@@ -16,7 +16,13 @@ const justin = require('../lib/justin');
 const logDirectories = ['../logs/console/', '../logs/data/'];
 
 (async() => {
-  logDirectories.forEach(async(dir) => {
-    await justin.cleanup(dir)
-  });
+  if (typeof process.argv[2] == 'number') {
+    logDirectories.forEach(async(dir) => {
+      await justin.cleanup(dir, process.argv[2]);
+    });
+  } else {
+    logDirectories.forEach(async(dir) => {
+      await justin.cleanup(dir);
+    });
+  }
 })();
