@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
 /*
-  travis.js is a custom library for scraping
-  MBMBaM quotes from the web
+  travis.js is a custom library for scraping,
+  formatting and indexing MBMBaM quotes from the web
 /*
 /* Dependencies */
 const Wikiaapi = require('nodewikiaapi'),

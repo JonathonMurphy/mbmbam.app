@@ -14,7 +14,8 @@ let found;
 let gotten = [];
 let parsed;
 let checked;
-let cleaned;
+let formatted;
+let quotes;
 let processed = 0;
 
 (async() => {
@@ -32,6 +33,9 @@ let processed = 0;
       parsed = await travis.parse(gotten);
       checked = await travis.check(parsed);
       justin.stats(checked);
+      formatted = travis.format('quote', checked);
+      quotes = travis.id(formatted);
+      await travis.index(quotes);
    }
   });
 })();

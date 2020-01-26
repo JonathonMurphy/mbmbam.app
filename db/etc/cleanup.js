@@ -13,7 +13,7 @@
 const justin = require('../lib/justin');
 
 /* Global Variables */
-const logDirectories = ['./logs/console/', './logs/data/'];
+const logDirectories = ['../logs/console/', '../logs/data/'];
 
 (async() => {
   logDirectories.forEach(async(dir) => {
