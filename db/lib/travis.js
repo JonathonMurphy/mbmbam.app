@@ -11,6 +11,7 @@ const Wikiaapi = require('nodewikiaapi'),
       mywiki = new Wikiaapi('mbmbam'),
       rp = require('request-promise'),
       chokidar = require('chokidar'),
+      hash = require('object-hash'),
       cheerio = require('cheerio'),
       justin = require('./justin'),
       regex = require('./regex'),
@@ -607,4 +608,78 @@ module.exports.add = (string, episodeObjects, logging=true) => {
   });
 
 
+};
+module.exports.format = (type, episodeObjects) => {
+  /**
+
+    This function takes the finished array of episodes
+    and returns an new array of objects that are ready
+    to be indexed into Elasticsearch.
+
+  **/
+  let index = [];
+  switch (type) {
+    case 'quote':
+      class IndexObject {
+        constructor(episode, speaker, quote) {
+          this.index = 'mbmbam-search',
+          this.type = 'quote',
+          this.body = {},
+            this.body.id = null;
+            this.body.podcast = episode.podcast,
+            this.body.episode = episode.title,
+            this.body.number = episode.number,
+            this.body.speaker = speaker,
+            this.body.is_mcelroy = regex.mcelroy.test(speaker),
+            this.body.quote = quote,
+            this.body.url_scraped_from = episode.transcript_url,
+            this.body.download_url = episode.download_url;
+              }
+            }
+            episodeObjects.forEach(function(episode) {
+              Object.keys(episode.quotes).forEach(function (speaker) {
+                let quotes = episode.quotes[speaker];
+                quotes.forEach(function(quote) {
+                  let newQuote = new IndexObject (episode, speaker, quote);
+                  index.push(newQuote);
+                });
+              });
+            });
+        return index;
+      break;
+    default:
+      return index;
+  }
+};
+module.exports.id = (indexObjects) => {
+/*
+
+  Takes a hash of an indexes episode number,
+  speaker, and quote, and assigned it as the id
+  for that index.
+
+*/
+  for (let indexObject of indexObjects) {
+    indexObject.body.id = hash([
+      indexObject.body.number,
+      indexObject.body.speaker,
+      indexObject.body.quote
+    ]);
+  }
+}
+module.exports.index = (indexObjects) => {
+  /**
+
+    Takes in an array of objects ready to be consumed by
+    Elasticsearch and indexs them one by one into our
+    instance of AWS Elasticsearch
+
+  **/
+  return new Promise(function (resolve, reject) {
+    (async () => {
+      for (let indexObject of indexObjects) {
+      await client.index(indexObject);
+    }
+  })();
+});
 };
