@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
+"use strict";
 /*
   travis.js is a custom library for scraping,
   formatting and indexing MBMBaM quotes from the web
@@ -50,13 +51,13 @@ let logger;
 module.exports.find = (source, logging=true) => {
   /**
 
-  Locates trancripts URLs addresses for a particular source
+  Locates trancripts URL addresses for a particular source
 
   Returns an array of objects containing
-    source of the transcript
-    title of the episode
-    episode number
-    transcript url
+    source: source of the transcript
+    title: title of the episode
+    number: episode number
+    transcript_url: url the transcript  is from
 
   **/
   if (logging) {
@@ -193,8 +194,8 @@ module.exports.find = (source, logging=true) => {
 module.exports.get = (source, episodeObjects, logging=true) => {
   /**
 
-  Pulls the raw HTML for the episode URL given in the 'source'
-  argument, and adds it to the episodeObject
+  Pulls the raw HTML/Text for the episode URL given in
+  the 'source' argument, and adds it to the episodeObject
 
   Returns an array of objects containing
     source: source of the transcript
@@ -341,12 +342,15 @@ module.exports.parse = (episodeObjects, logging=true) => {
 
 
   Returns an array of objects containing
-    source of the transcript
-    title of the episode
-    episode number
-    transcript url
-    quotes scrapped from the episode
-    raw scrapped data of the transcript
+  Returns an array of objects containing
+    source: source of the transcript
+    title: title of the episode
+    number: episode number
+    transcript_url: url the transcript  is from
+    html: raw scrapped data of the transcript
+    quotes: object where the keys are the speaks
+      of a quote, and the values are an array of
+      all the quotes that speaker has said
 
   todo: add in error messages when an episode is not parsed.
 
@@ -466,9 +470,10 @@ module.exports.check = (episodeObjects, logging=true) => {
       PDF -> Google Docs -> Wikia Transcripts
 
       THAT'S A LIE... Currently there's no preference to which is removed
+      it just happens to remove them in that order, most of the time
 
   Returns an array containing no duplicate episodes
-  and no empty quote sections
+  and no episodes with empty quote sections
 
 */
   if (logging) {
@@ -511,6 +516,11 @@ module.exports.new = (source, array=null, prev=null, logging=true) => {
   /**
 
   Checks for new episodes that have not yet been indexed
+
+  This is yet to be implemented, but the idea is to build a
+  new index in Elasticsearch that contains all previously
+  indexed episodes, and to query against it for each episode
+  that the scripts pulls quotes for
 
   **/
   if (logging) {
@@ -612,40 +622,44 @@ module.exports.add = (string, episodeObjects, logging=true) => {
 module.exports.format = (type, episodeObjects) => {
   /**
 
-    This function takes the finished array of episodes
-    and returns an new array of objects that are ready
-    to be indexed into Elasticsearch.
+    This function takes the finished array of parsed
+    non-empty episodes and returns an new array of
+    objects that are ready to be indexed into Elasticsearch.
+
+    arguments:
+      type:
+        'quote'
+          Builds an array of objects to be
+          indexed into the quote type
+        'episode'
+          Builds an array of objects to be
+          indexed into the episode type
+      episodeObjects:
+        Array contiaining parsed and checked
+        Episode objects
+
 
   **/
   let index = [];
   switch (type) {
     case 'quote':
-      class IndexObject {
-        constructor(episode, speaker, quote) {
-          this.index = 'mbmbam-search',
-          this.type = 'quote',
-          this.body = {},
-            this.body.id = null;
-            this.body.podcast = episode.podcast,
-            this.body.episode = episode.title,
-            this.body.number = episode.number,
-            this.body.speaker = speaker,
-            this.body.is_mcelroy = regex.mcelroy.test(speaker),
-            this.body.quote = quote,
-            this.body.url_scraped_from = episode.transcript_url,
-            this.body.download_url = episode.download_url;
-              }
-            }
-            episodeObjects.forEach(function(episode) {
-              Object.keys(episode.quotes).forEach(function (speaker) {
-                let quotes = episode.quotes[speaker];
-                quotes.forEach(function(quote) {
-                  let newQuote = new IndexObject (episode, speaker, quote);
-                  index.push(newQuote);
-                });
-              });
-            });
-        return index;
+      episodeObjects.forEach(function(episode) {
+        Object.keys(episode.quotes).forEach(function (speaker) {
+          let quotes = episode.quotes[speaker];
+          quotes.forEach(function(quote) {
+            let newQuote = new justin.QuoteIndex(episode, speaker, quote);
+            index.push(newQuote);
+          });
+        });
+      });
+      return index;
+      break;
+    case 'episode':
+      episodeObjects.forEach(function(episode) {
+        let newEpisode = new justin.EpisodeIndex(episode);
+        index.push(newEpisode);
+      });
+      return index;
       break;
     default:
       return index;
@@ -657,6 +671,9 @@ module.exports.id = (indexObjects) => {
   Takes a hash of an indexes episode number,
   speaker, and quote, and assigned it as the id
   for that index.
+
+  This will prevent Elasticsearch from indexing
+  the same quotes twice
 
 */
   for (let indexObject of indexObjects) {

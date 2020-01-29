@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
+"use strict";
 /*
   justin.js is the helper library
   for the backend portion of this app
@@ -41,38 +42,76 @@ log4js.configure({
 });
 let logger;
 
-/* Exported functions */
-function Episode (s, t, tU, pC=null, html=null, dU=null) {
-  /*
-    Object constructor to house all the over-arching
-    details for a given episode transcript
-
-        s = source
-        t = title
-        tU = transcript url
-        pC= podcast
-        dU = download url
-  */
-  this.source = s;
-  if (t !== null) {
-    t = t.toString();
-    this.title = t;
-    if (t.match(regex.episodeNumber)) {
-      this.number = Number(t.match(regex.episodeNumber)[0]);
-    } else {
-      this.number = 0;
-    }
-  } else {
-    this.title = null;
-    this.number = null;
+/* Exported classes */
+class Index {
+  constructor () {
+    this.index = 'mbmbam-search';
   }
-  this.transcript_url = tU;
-  this.podcast = pC;
-  this.download_url = dU;
-  this.quotes = {};
-  this.html = html;
+}
+module.exports.Index = Index;
+
+class EpisodeIndex extends Index {
+  constructor (episode) {
+    super();
+    this.type = 'episode';
+    this.body = {};
+      this.body.id = null;
+      this.body.podcast = episode.podcast;
+      this.body.episode = episode.title;
+      this.body.number = episode.number;
+      this.body.url_scraped_from = episode.transcript_url;
+      this.body.download_url = episode.download_url;
+  }
+}
+module.exports.EpisodeIndex = EpisodeIndex;
+
+class QuoteIndex extends EpisodeIndex {
+  constructor (episode, speaker, quote) {
+    super(episode);
+    this.type = 'quote';
+    this.body = {};
+      this.body.speaker = speaker;
+      this.body.is_mcelroy = regex.mcelroy.test(speaker);
+      this.body.quote = quote;
+  }
+}
+module.exports.QuoteIndex = QuoteIndex;
+
+class Episode {
+  constructor (s, t, tU, pC=null, html=null, dU=null) {
+    /*
+      Object constructor to house all the over-arching
+      details for a given episode transcript
+
+          s = source
+          t = title
+          tU = transcript url
+          pC= podcast
+          dU = download url
+    */
+    this.source = s;
+    if (t !== null) {
+      t = t.toString();
+      this.title = t;
+      if (t.match(regex.episodeNumber)) {
+        this.number = Number(t.match(regex.episodeNumber)[0]);
+      } else {
+        this.number = 0;
+      }
+    } else {
+      this.title = null;
+      this.number = null;
+    }
+    this.transcript_url = tU;
+    this.podcast = pC;
+    this.download_url = dU;
+    this.quotes = {};
+    this.html = html;
+  }
 }
 module.exports.Episode = Episode;
+
+/* Exported functions */
 module.exports.write = (string, data, ext='json', logging=true) => {
   /*
 
