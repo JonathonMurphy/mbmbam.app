@@ -665,7 +665,7 @@ module.exports.format = (type, episodeObjects) => {
       return index;
   }
 };
-module.exports.id = (indexObjects) => {
+module.exports.id = (type, indexObjects) => {
 /*
 
   Takes a hash of an indexes episode number,
@@ -676,13 +676,30 @@ module.exports.id = (indexObjects) => {
   the same quotes twice
 
 */
-  for (let indexObject of indexObjects) {
-    indexObject.body.id = hash([
-      indexObject.body.number,
-      indexObject.body.speaker,
-      indexObject.body.quote
-    ]);
-  }
+let indexObject
+switch (type) {
+  case 'quote':
+    for (indexObject of indexObjects) {
+      indexObject.body.id = hash([
+        indexObject.body.number,
+        indexObject.body.speaker,
+        indexObject.body.quote
+      ]);
+    }
+    break;
+  case 'episode':
+    for (indexObject of indexObjects) {
+      indexObject.body.id = hash([
+        indexObject.body.podcast,
+        indexObject.body.title,
+        indexObject.body.number
+      ]);
+    }
+    break:
+  default:
+
+}
+
 }
 module.exports.index = (indexObjects) => {
   /**
