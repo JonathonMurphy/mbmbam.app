@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
-
+'use strict';
 /* Dependencies */
 const justin = require('../lib/justin'),
       travis = require('../lib/travis'),
+      path = require('path'),
       fs = require('fs');
 
 /* Global Variables */
@@ -23,8 +24,8 @@ let processed = 0;
 
 (async() => {
   logDirectories.forEach(async(dir) => {
-    await justin.cleanup(dir)
-  })
+    await justin.cleanup(dir);
+  });
   repos.forEach(async(repo) => {
     found = await travis.find(repo);
     if (travis.new(repo)) {

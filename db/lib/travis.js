@@ -253,7 +253,7 @@ Title: ${episode.title}
           const browser = await puppeteer.launch({headless: true});
           try {
             // Loop over all the array items
-            for (i=0; i<episodeObjects.length; i++) {
+            for (let i=0; i<episodeObjects.length; i++) {
               // Open new page and load current url from the arracy in puppeteer
               const page = await browser.newPage();
               await page.setViewport({
@@ -577,7 +577,7 @@ module.exports.add = (string, episodeObjects, logging=true) => {
             });
           }
         };
-        regexConstructor = (match) => {
+        let regexConstructor = (match) => {
           const negativeLookBehind = '(?<![0-9])',
                 negativeLookAhead = '(?![0-9])';
           if (match < 10) {
@@ -652,18 +652,17 @@ module.exports.format = (type, episodeObjects) => {
           });
         });
       });
-      return index;
       break;
     case 'episode':
       episodeObjects.forEach(function(episode) {
         let newEpisode = new justin.EpisodeIndex(episode);
         index.push(newEpisode);
       });
-      return index;
       break;
     default:
       return index;
   }
+  return index;
 };
 module.exports.id = (type, indexObjects) => {
 /*
@@ -676,7 +675,7 @@ module.exports.id = (type, indexObjects) => {
   the same quotes twice
 
 */
-let indexObject
+let indexObject;
 switch (type) {
   case 'quote':
     for (indexObject of indexObjects) {
@@ -695,9 +694,9 @@ switch (type) {
         indexObject.body.number
       ]);
     }
-    break:
+    break;
   default:
-
+  return indexObject;
 }
 
-}
+};
