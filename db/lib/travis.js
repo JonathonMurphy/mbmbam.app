@@ -701,19 +701,3 @@ switch (type) {
 }
 
 }
-module.exports.index = (indexObjects) => {
-  /**
-
-    Takes in an array of objects ready to be consumed by
-    Elasticsearch and indexs them one by one into our
-    instance of AWS Elasticsearch
-
-  **/
-  return new Promise(function (resolve, reject) {
-    (async () => {
-      for (let indexObject of indexObjects) {
-      await client.index(indexObject);
-    }
-  })();
-});
-};

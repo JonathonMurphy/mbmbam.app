@@ -181,26 +181,6 @@ module.exports.sortQuote = (text, object) => {
   }
 
 };
-module.exports.search = (arg) => {
-  (async () => {
-    const { body } = await client.search({
-      index: 'mbmbam-search',
-      type: 'quote',
-      body: {
-        query: {
-          match: {
-            quote: arg
-          }
-        }
-      }
-    });
-
-    body.hits.hits.forEach(function(hit) {
-      console.log(hit);
-      console.log("\n");
-    });
-  })();
-};
 module.exports.cleanup = (directory, daysToKeep=5, logging=true) => {
 /*
 
@@ -281,4 +261,40 @@ Total Number of Episodes: ${statObject.total}
               From PDF's: ${statObject.pdf}
   `);
   return statObject;
+};
+module.exports.search = (arg) => {
+  (async () => {
+    const { body } = await client.search({
+      index: 'mbmbam-search',
+      type: 'quote',
+      body: {
+        query: {
+          match: {
+            quote: arg
+          }
+        }
+      }
+    });
+
+    body.hits.hits.forEach(function(hit) {
+      console.log(hit);
+      console.log("\n");
+    });
+  })();
+};
+module.exports.index = (indexObjects) => {
+  /**
+
+    Takes in an array of objects ready to be consumed by
+    Elasticsearch and indexs them one by one into our
+    instance of AWS Elasticsearch
+
+  **/
+  return new Promise(function (resolve, reject) {
+    (async () => {
+      for (let indexObject of indexObjects) {
+      await client.index(indexObject);
+    }
+  })();
+});
 };
