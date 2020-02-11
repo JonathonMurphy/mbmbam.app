@@ -483,7 +483,9 @@ module.exports.check = (episodeObjects, logging=true) => {
   }
   return new Promise(function (resolve, reject) {
     let noQuotes = [];
-    episodeObjects.sort((a, b) => {return a.number - b.number});
+    episodeObjects.sort((a, b) => {
+      return a.number - b.number;
+    });
     justin.write('sorted', episodeObjects);
     episodeObjects.forEach(function(episode, i) {
       if (i+1 < episodeObjects.length) {
@@ -619,7 +621,7 @@ module.exports.add = (string, episodeObjects, logging=true) => {
 
 
 };
-module.exports.format = (type, episodeObjects) => {
+module.exports.format = (type, episodeObjects, logging=true) => {
   /**
 
     This function takes the finished array of parsed
@@ -640,31 +642,42 @@ module.exports.format = (type, episodeObjects) => {
 
 
   **/
-  let index = [];
-  switch (type) {
-    case 'quote':
-      episodeObjects.forEach(function(episode) {
-        Object.keys(episode.quotes).forEach(function (speaker) {
-          let quotes = episode.quotes[speaker];
-          quotes.forEach(function(quote) {
-            let newQuote = new justin.QuoteIndex(episode, speaker, quote);
-            index.push(newQuote);
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  }
+  return new Promise(function (resolve, reject) {
+    let funcName = 'format';
+    let index = [];
+    switch (type) {
+      case 'quotes':
+        episodeObjects.forEach(function(episode) {
+          Object.keys(episode.quotes).forEach(function (speaker) {
+            let quotes = episode.quotes[speaker];
+            quotes.forEach(function(quote) {
+              let newQuote = new justin.QuoteIndex('quote', episode, speaker, quote);
+              index.push(newQuote);
+            });
           });
         });
-      });
-      break;
-    case 'episode':
-      episodeObjects.forEach(function(episode) {
-        let newEpisode = new justin.EpisodeIndex(episode);
-        index.push(newEpisode);
-      });
-      break;
-    default:
-      return index;
-  }
-  return index;
+        break;
+      case 'episodes':
+        episodeObjects.forEach(function(episode) {
+          let newEpisode = new justin.EpisodeIndex('episode' episode);
+          index.push(newEpisode);
+        });
+        break;
+      default:
+        resolve(index);
+    }
+    if (logging) {
+      justin.write(`${funcName}.${type}`, index);
+    }
+    resolve(index);
+  });
 };
-module.exports.id = (type, indexObjects) => {
+module.exports.id = (indexObjects, logging=true) => {
 /*
 
   Takes a hash of an indexes episode number,
@@ -675,28 +688,32 @@ module.exports.id = (type, indexObjects) => {
   the same quotes twice
 
 */
-let indexObject;
-switch (type) {
-  case 'quote':
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  }
+  return new Promise(function (resolve, reject) {
+    let index = [];
+    let indexObject;
+    let funcName = 'id';
+    let processed = 0;
     for (indexObject of indexObjects) {
-      indexObject.body.id = hash([
+      indexObject.id = hash([
+        indexObject.body.podcast,
+        indexObject.body.title,
         indexObject.body.number,
         indexObject.body.speaker,
         indexObject.body.quote
       ]);
+      index.push(indexObject);
+      processed++;
+      if(processed === indexObjects.length) {
+        if (logging) {
+          justin.write(`${funcName}.${type}`, index);
+        }
+        resolve(index);
+      }
     }
-    break;
-  case 'episode':
-    for (indexObject of indexObjects) {
-      indexObject.body.id = hash([
-        indexObject.body.podcast,
-        indexObject.body.title,
-        indexObject.body.number
-      ]);
-    }
-    break;
-  default:
-  return indexObject;
-}
-
+  });
 };

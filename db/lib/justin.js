@@ -7,7 +7,8 @@
 /*
 /* Dependencies */
 const { Client } = require('@elastic/elasticsearch'),
-      client = new Client({node: 'https://vpc-mbmbam-jb5nrxn3lk3epnc44z74hgccfu.us-east-2.es.amazonaws.com'}),
+      // client = new Client({node: 'https://vpc-mbmbam-jb5nrxn3lk3epnc44z74hgccfu.us-east-2.es.amazonaws.com'}),
+      client = new Client({node: 'http://127.0.0.1:9200'}),
       regex = require('./regex'),
       log4js = require('log4js'),
       path = require('path'),
@@ -44,39 +45,50 @@ let logger;
 
 /* Exported classes */
 class Index {
-  constructor () {
+  constructor (type, episode, speaker=null, quote=null) {
     this.index = 'mbmbam-search';
-  }
-}
-module.exports.Index = Index;
-
-class EpisodeIndex extends Index {
-  constructor (episode) {
-    super();
-    this.type = 'episode';
+    this.id = null;
     this.body = {};
-      this.body.id = null;
+      this.body.type = type;
       this.body.podcast = episode.podcast;
       this.body.episode = episode.title;
       this.body.number = episode.number;
       this.body.url_scraped_from = episode.transcript_url;
       this.body.download_url = episode.download_url;
-  }
-}
-module.exports.EpisodeIndex = EpisodeIndex;
-
-class QuoteIndex extends EpisodeIndex {
-  constructor (episode, speaker, quote) {
-    super(episode);
-    this.type = 'quote';
-    this.body = {};
       this.body.speaker = speaker;
-      this.body.is_mcelroy = regex.mcelroy.test(speaker);
+      if (speaker !== null) {
+        this.body.is_mcelroy = regex.mcelroy.test(speaker);
+      } else  {
+        this.body.is_mcelroy = speaker;
+      }
       this.body.quote = quote;
   }
 }
-module.exports.QuoteIndex = QuoteIndex;
-
+module.exports.Index = Index;
+// class EpisodeIndex extends Index {
+//   constructor (episode) {
+//     super();
+//     this.type = 'episode';
+//     this.body = {};
+//       this.body.id = null;
+//       this.body.podcast = episode.podcast;
+//       this.body.episode = episode.title;
+//       this.body.number = episode.number;
+//       this.body.url_scraped_from = episode.transcript_url;
+//       this.body.download_url = episode.download_url;
+//   }
+// }
+// module.exports.EpisodeIndex = EpisodeIndex;
+// class QuoteIndex extends EpisodeIndex {
+//   constructor (episode, speaker, quote) {
+//     super(episode);
+//     this.index = 'quote';
+//     this.body.speaker = speaker;
+//     this.body.is_mcelroy = regex.mcelroy.test(speaker);
+//     this.body.quote = quote;
+//   }
+// }
+// module.exports.QuoteIndex = QuoteIndex;
 class Episode {
   constructor (s, t, tU, pC=null, html=null, dU=null) {
     /*
@@ -209,7 +221,7 @@ return new Promise(function (resolve, reject) {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     if (diffDays > daysToKeep) {
       logger.info(`Removing ${directory}${filename}`);
-      fs.unlinkSync(`${directory}${filename}`);
+      fs.unlinkSync(`${directory}/${filename}`);
     }
     processed++;
     if (processed === filenames.length) {
@@ -282,18 +294,42 @@ module.exports.search = (arg) => {
     });
   })();
 };
-module.exports.index = (indexObjects) => {
+module.exports.index = (indexObjects, logging=true) => {
   /**
 
     Takes in an array of objects ready to be consumed by
     Elasticsearch and indexs them one by one into our
     instance of AWS Elasticsearch
 
+    TODO: Add some logging to this function
+
   **/
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  }
   return new Promise(function (resolve, reject) {
     (async () => {
       for (let indexObject of indexObjects) {
       await client.index(indexObject);
+      if (indexObject.body.type == episode) {
+      logger.info(`
+Indexing: ${indexObject.body.type}:
+ID: ${indexObject.id}
+Episode: ${indexObject.body.episode}
+Number: ${indexObject.body.number}
+        `);
+      } else {
+      logger.info(`
+Indexing: ${indexObject.body.type}:
+ID: ${indexObject.id}
+Episode: ${indexObject.body.episode}
+Speaker: ${indexObject.body.speaker}
+Quote: ${indexObject.body.quote}
+        `);
+      }
+
     }
   })();
 });

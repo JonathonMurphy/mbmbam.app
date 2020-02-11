@@ -1,0 +1,26 @@
+[
+  {
+    "index": "mbmbam-search",
+    "type": "episode",
+    "body": {
+      "id": "0eba09d3d88e1d6b1025e6288408adc8d54821ce",
+      "podcast": null,
+      "episode": "TRANSCRIPT My Brother, My Brother, and Me Ep. 476: Face 2 Face: Super-Snake Begins",
+      "number": 476,
+      "url_scraped_from": "https://maximumfun.org/transcripts/my-brother-my-brother-and-me/episode-476-transcript/",
+      "download_url": null
+    }
+  },
+  {
+    "index": "mbmbam-search",
+    "type": "episode",
+    "body": {
+      "id": "05d4f1e3a5729ff614b8a0fb38fc2e5ee0f1eca4",
+      "podcast": null,
+      "episode": "TRANSCRIPT My Brother, My Brother, and Me Ep. 477: Crash Bandicoot’s Wallet Chain",
+      "number": 477,
+      "url_scraped_from": "https://maximumfun.org/transcripts/my-brother-my-brother-and-me/episode-477-transcript/",
+      "download_url": null
+    }
+  }
+]

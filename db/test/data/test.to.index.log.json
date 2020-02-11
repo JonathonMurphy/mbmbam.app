@@ -1,0 +1,47 @@
+[
+  {
+    "index": "mbmbam-search",
+    "id": "34d47bfeeeee6f9f0588cd1579209667e29220db",
+    "body": {
+      "type": "quote",
+      "podcast": null,
+      "episode": "My‌ ‌Brother,‌ ‌My‌ ‌Brother‌ ‌and‌ ‌Me:‌ ‌The‌ ‌Adventure‌ ‌Zone‌",
+      "number": 0,
+      "url_scraped_from": "https://docs.google.com/document/d/e/2PACX-1vTmKmQ88w6rx5zZbKR7lZ_rUVovhrNEwIbKnNIim7nqGP0ofIPVeIl2lFFjOiWE1ZC_-9efFTVwmkE6/pub",
+      "download_url": null,
+      "speaker": "me",
+      "is_mcelroy": false,
+      "quote": "The Adventure Zone"
+    }
+  },
+  {
+    "index": "mbmbam-search",
+    "id": "f6373b08875c70a8774296e5b54e6d48f9c5610b",
+    "body": {
+      "type": "episode",
+      "podcast": null,
+      "episode": "My‌ ‌Brother,‌ ‌My‌ ‌Brother‌ ‌and‌ ‌Me:‌ ‌The‌ ‌Adventure‌ ‌Zone‌",
+      "number": 101,
+      "url_scraped_from": "https://docs.google.com/document/d/e/2PACX-1vTmKmQ88w6rx5zZbKR7lZ_rUVovhrNEwIbKnNIim7nqGP0ofIPVeIl2lFFjOiWE1ZC_-9efFTVwmkE6/pub",
+      "download_url": null,
+      "speaker": null,
+      "is_mcelroy": null,
+      "quote": null
+    }
+  },
+  {
+    "index": "mbmbam-search",
+`   "id": "6069d3d79f65a7cd7b9d399d24eb3c6bade176ee",`
+    "body": {
+      "type": "quote",
+      "podcast": null,
+      "episode": "My‌ ‌Brother,‌ ‌My‌ ‌Brother‌ ‌and‌ ‌Me:‌ ‌The‌ ‌Adventure‌ ‌Zone‌",
+      "number": 0,
+      "url_scraped_from": "https://docs.google.com/document/d/e/2PACX-1vTmKmQ88w6rx5zZbKR7lZ_rUVovhrNEwIbKnNIim7nqGP0ofIPVeIl2lFFjOiWE1ZC_-9efFTVwmkE6/pub",
+      "download_url": null,
+      "speaker": "griffin",
+      "is_mcelroy": true,
+      "quote": "So are you guys ready to make some dudes?"
+    }
+  }
+]

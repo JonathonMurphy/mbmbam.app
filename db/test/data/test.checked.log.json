@@ -1,0 +1,47 @@
+[
+  {
+    "index": "mbmbam-search",
+    "type": "quote",
+    "body": {
+      "id": "34d47bfeeeee6f9f0588cd1579209667e29220db",
+      "podcast": null,
+      "episode": "My‌ ‌Brother,‌ ‌My‌ ‌Brother‌ ‌and‌ ‌Me:‌ ‌The‌ ‌Adventure‌ ‌Zone‌",
+      "number": 0,
+      "url_scraped_from": "https://docs.google.com/document/d/e/2PACX-1vTmKmQ88w6rx5zZbKR7lZ_rUVovhrNEwIbKnNIim7nqGP0ofIPVeIl2lFFjOiWE1ZC_-9efFTVwmkE6/pub",
+      "download_url": null,
+      "speaker": "me",
+      "is_mcelroy": false,
+      "quote": "The Adventure Zone"
+    }
+  },
+  {
+    "index": "mbmbam-search",
+    "type": "quote",
+    "body": {
+      "id": "f6373b08875c70a8774296e5b54e6d48f9c5610b",
+      "podcast": null,
+      "episode": "My‌ ‌Brother,‌ ‌My‌ ‌Brother‌ ‌and‌ ‌Me:‌ ‌The‌ ‌Adventure‌ ‌Zone‌",
+      "number": 0,
+      "url_scraped_from": "https://docs.google.com/document/d/e/2PACX-1vTmKmQ88w6rx5zZbKR7lZ_rUVovhrNEwIbKnNIim7nqGP0ofIPVeIl2lFFjOiWE1ZC_-9efFTVwmkE6/pub",
+      "download_url": null,
+      "speaker": "griffin",
+      "is_mcelroy": true,
+      "quote": "Hey, everyone. This is Griffin. I have terrific news, if you haven’t already heard. Justin and Sydnee had a baby! A beautiful bouncing baby girl. Her name is Charlie Gail and she is beautiful and we are very, very happy for them. And this also means that My Brother, My Brother and Me is essentially going on paternity leave for a little bit, until Justin can get back and start recording new, normal episodes with us. Which means in the interim, we are going to release some unorthodox… content, I think you could call it. Next week we’re gonna be releasing the Los Angeles live show that we did a couple months back. Which actually turned out very well, in terms of audio quality so don’t worry about that. [chuckles]"
+    }
+  },
+  {
+    "index": "mbmbam-search",
+    "type": "quote",
+    "body": {
+      "id": "6069d3d79f65a7cd7b9d399d24eb3c6bade176ee",
+      "podcast": null,
+      "episode": "My‌ ‌Brother,‌ ‌My‌ ‌Brother‌ ‌and‌ ‌Me:‌ ‌The‌ ‌Adventure‌ ‌Zone‌",
+      "number": 0,
+      "url_scraped_from": "https://docs.google.com/document/d/e/2PACX-1vTmKmQ88w6rx5zZbKR7lZ_rUVovhrNEwIbKnNIim7nqGP0ofIPVeIl2lFFjOiWE1ZC_-9efFTVwmkE6/pub",
+      "download_url": null,
+      "speaker": "griffin",
+      "is_mcelroy": true,
+      "quote": "So are you guys ready to make some dudes?"
+    }
+  }
+]

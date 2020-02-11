@@ -10,17 +10,15 @@ const justin = require('../lib/justin'),
 /* Global Variables */
 const repos = ['wikia transcript', 'google doc', 'pdf'];
 const logDirectories = [
-  path.resolve(__dirname, '../logs/console/'),
-  path.resolve(__dirname, '../logs/data/')
+  path.resolve(__dirname, '../logs/console'),
+  path.resolve(__dirname, '../logs/data')
 ];
 
-let found;
 let gotten = [];
-let parsed;
-let checked;
-let formatted;
-let quotes;
+let indicies = [];
 let processed = 0;
+let found, parsed,
+    checked, added;
 
 (async() => {
   logDirectories.forEach(async(dir) => {
@@ -36,10 +34,13 @@ let processed = 0;
       justin.write('gotten', gotten);
       parsed = await travis.parse(gotten);
       checked = await travis.check(parsed);
+      added = await travis.add('download url', checked)
       justin.stats(checked);
-      formatted = travis.format('quote', checked);
-      quotes = travis.id(formatted);
-      await travis.index(quotes);
+      indicies.push(...await travis.format('episodes', added))
+      indicies.push(...await travis.format('quotes', added))
+      indicies = await travis.id(indicies);
+      console.log('Now Indexing Data');
+      await justin.index(indicies);
    }
   });
 })();
