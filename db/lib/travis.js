@@ -85,7 +85,7 @@ module.exports.find = (source, logging=true) => {
               }
             });
             if (logging) {
-              justin.write(`${funcName}.${source}`, array);
+              justin.write(`1.${funcName}.${source}`, array);
             }
             resolve(array);
           }).catch(function (error) {
@@ -98,7 +98,7 @@ module.exports.find = (source, logging=true) => {
         (async () => {
           let array = [];
           if (logging) {
-            justin.write(`${funcName}.${source}`, array);
+            justin.write(`1.${funcName}.${source}`, array);
           }
           resolve(array);
         })();
@@ -133,7 +133,7 @@ module.exports.find = (source, logging=true) => {
             });
             await browser.close();
             if (logging) {
-              justin.write(`${funcName}.${source}`, array);
+              justin.write(`1.${funcName}.${source}`, array);
             }
             resolve(array);
           } catch (error) {
@@ -175,7 +175,7 @@ module.exports.find = (source, logging=true) => {
                   recursiveRequest();
                 } else {
                   if (logging) {
-                    justin.write(`${funcName}.${source}`, array);
+                    justin.write(`1.${funcName}.${source}`, array);
                   }
                   resolve(array);
                 }
@@ -234,7 +234,7 @@ Title: ${episode.title}
                 processed++;
                 if(processed === array.length) {
                   if (logging) {
-                    justin.write(`${funcName}.${source}`, episodeObjects);
+                    justin.write(`2.${funcName}.${source}`, episodeObjects);
                   }
                   resolve(episodeObjects);
                }
@@ -276,7 +276,7 @@ Title: ${episodeObjects[i].title}
             } // End for loop
             await browser.close();
             if (logging) {
-              justin.write(`${funcName}.${source}`, episodeObjects);
+              justin.write(`2.${funcName}.${source}`, episodeObjects);
             }
             resolve(episodeObjects);
           } catch (error) {
@@ -316,7 +316,7 @@ Title: ${episodeObjects[i].title}
                 processed++;
                 if (processed === episodeObjects.length) {
                   if (logging) {
-                    justin.write(`${funcName}.${source}`, episodeObjects);
+                    justin.write(`2.${funcName}.${source}`, episodeObjects);
                   }
                   resolve(episodeObjects);
                 }
@@ -454,7 +454,7 @@ Source: ${episode.source}
       }
       if(processed === episodeObjects.length) {
         if (logging) {
-          justin.write(`${funcName}`, episodeObjects);
+          justin.write(`3.${funcName}`, episodeObjects);
         }
         resolve(episodeObjects);
      }
@@ -508,8 +508,8 @@ ${episode.number}: ${episode.transcript_url}
       }
     });
     if (logging) {
-      justin.write('noQuotes', noQuotes);
-      justin.write('checked', episodeObjects);
+      justin.write('4.noQuotes', noQuotes);
+      justin.write('4.checked', episodeObjects);
     }
     resolve(episodeObjects);
   });
@@ -606,7 +606,7 @@ module.exports.add = (string, episodeObjects, logging=true) => {
             });
           })
           .then(() => {
-            justin.write(funcName, episodeObjects);
+            justin.write(`5.${funcName}`, episodeObjects);
             resolve(episodeObjects);
           })
           .catch((err) => {
@@ -656,7 +656,7 @@ module.exports.format = (type, episodeObjects, logging=true) => {
           Object.keys(episode.quotes).forEach(function (speaker) {
             let quotes = episode.quotes[speaker];
             quotes.forEach(function(quote) {
-              let newQuote = new justin.QuoteIndex('quote', episode, speaker, quote);
+              let newQuote = new justin.Index('quote', episode, speaker, quote);
               index.push(newQuote);
             });
           });
@@ -664,7 +664,7 @@ module.exports.format = (type, episodeObjects, logging=true) => {
         break;
       case 'episodes':
         episodeObjects.forEach(function(episode) {
-          let newEpisode = new justin.EpisodeIndex('episode' episode);
+          let newEpisode = new justin.Index('episode', episode);
           index.push(newEpisode);
         });
         break;
@@ -672,7 +672,7 @@ module.exports.format = (type, episodeObjects, logging=true) => {
         resolve(index);
     }
     if (logging) {
-      justin.write(`${funcName}.${type}`, index);
+      justin.write(`6.${funcName}.${type}`, index);
     }
     resolve(index);
   });
@@ -700,7 +700,6 @@ module.exports.id = (indexObjects, logging=true) => {
     let processed = 0;
     for (indexObject of indexObjects) {
       indexObject.id = hash([
-        indexObject.body.podcast,
         indexObject.body.title,
         indexObject.body.number,
         indexObject.body.speaker,
@@ -710,7 +709,7 @@ module.exports.id = (indexObjects, logging=true) => {
       processed++;
       if(processed === indexObjects.length) {
         if (logging) {
-          justin.write(`${funcName}.${type}`, index);
+          justin.write(`7.${funcName}`, index);
         }
         resolve(index);
       }

@@ -49,7 +49,7 @@ class Index {
     this.index = 'mbmbam-search';
     this.id = null;
     this.body = {};
-      this.body.type = type;
+      this.body.group = type;
       this.body.podcast = episode.podcast;
       this.body.episode = episode.title;
       this.body.number = episode.number;
@@ -313,16 +313,16 @@ module.exports.index = (indexObjects, logging=true) => {
     (async () => {
       for (let indexObject of indexObjects) {
       await client.index(indexObject);
-      if (indexObject.body.type == episode) {
+      if (indexObject.body.group == 'episode') {
       logger.info(`
-Indexing: ${indexObject.body.type}:
+Indexing: ${indexObject.body.group}:
 ID: ${indexObject.id}
 Episode: ${indexObject.body.episode}
 Number: ${indexObject.body.number}
         `);
       } else {
       logger.info(`
-Indexing: ${indexObject.body.type}:
+Indexing: ${indexObject.body.group}:
 ID: ${indexObject.id}
 Episode: ${indexObject.body.episode}
 Speaker: ${indexObject.body.speaker}
@@ -334,3 +334,71 @@ Quote: ${indexObject.body.quote}
   })();
 });
 };
+
+module.exports.map = (logging=true) => {
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  }
+  return new Promise(function (resolve, reject) {
+    (async() => {
+      await client.indices.create({
+        index: "mbmbam-search",
+        body: {
+          mappings: {
+            properties: {
+              group: {
+                type: "keyword"
+              },
+              podcast: {
+                type: "text"
+              },
+              episode: {
+                type: "text"
+              },
+              number: {
+                type: "integer"
+              },
+              url_scraped_from: {
+                type: "text"
+              },
+              download_url: {
+                type: "text"
+              },
+              speaker: {
+                type: "text"
+              },
+              is_mcelroy: {
+                type: "boolean"
+              },
+              quote: {
+                type: "text"
+              }
+            }
+          }
+        }
+      });
+      let res = await client.indices.getMapping({
+        index: 'mbmbam-search'
+      });
+      console.log(res);
+    })();
+  });
+};
+
+module.exports.check = (logging=true) => {
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  }
+  return new Promise(function (resolve, reject) {
+    (async()=>{
+      let res = await client.indices.getMapping({
+        index: 'mbmbam-search'
+      });
+      console.log(res.body['mbmbam-search'].mappings.properties);
+    })()
+  })
+}
