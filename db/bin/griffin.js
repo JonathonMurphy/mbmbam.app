@@ -18,7 +18,7 @@ let gotten = [];
 let indicies = [];
 let processed = 0;
 let found, parsed,
-    checked, added;
+    checked;
 
 (async() => {
   logDirectories.forEach(async(dir) => {
@@ -34,10 +34,10 @@ let found, parsed,
       justin.write('gotten', gotten);
       parsed = await travis.parse(gotten);
       checked = await travis.check(parsed);
-      added = await travis.add('download url', checked)
+      checked = await travis.add('download url', checked)
       justin.stats(checked);
-      indicies.push(...await travis.format('episodes', added))
-      indicies.push(...await travis.format('quotes', added))
+      indicies.push(...await travis.format('episodes', checked))
+      indicies.push(...await travis.format('quotes', checked))
       indicies = await travis.id(indicies);
       console.log('Now Indexing Data');
       await justin.index(indicies);
