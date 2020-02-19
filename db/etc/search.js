@@ -15,5 +15,9 @@ const justin = require('../lib/justin');
 
 
 (async() => {
-  await justin.search(process.argv[2]);
+  let hits = await justin.search(process.argv[2], process.argv[3]);
+  hits.forEach(function(hit) {
+    console.log(hit);
+    console.log("\n");
+  });
 })();

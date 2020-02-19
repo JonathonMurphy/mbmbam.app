@@ -17,8 +17,8 @@ const logDirectories = [
 let gotten = [];
 let indicies = [];
 let processed = 0;
-let found, parsed,
-    checked;
+let found, newEps,
+    parsed, checked;
 
 (async() => {
   logDirectories.forEach(async(dir) => {
@@ -26,9 +26,8 @@ let found, parsed,
   });
   repos.forEach(async(repo) => {
     found = await travis.find(repo);
-    if (travis.new(repo)) {
-      gotten.push(...await travis.get(repo, found));
-    }
+    newEps = await travis.new(found);
+    gotten.push(...await travis.get(repo, newEps));
     processed++;
     if(processed === repos.length) {
       justin.write('gotten', gotten);

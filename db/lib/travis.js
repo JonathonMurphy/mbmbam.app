@@ -514,7 +514,7 @@ ${episode.number}: ${episode.transcript_url}
     resolve(episodeObjects);
   });
 };
-module.exports.new = (source, array=null, prev=null, logging=true) => {
+module.exports.new = (episodeObjects, logging=true) => {
   /**
 
   Checks for new episodes that have not yet been indexed
@@ -530,24 +530,27 @@ module.exports.new = (source, array=null, prev=null, logging=true) => {
   } else {
     logger = log4js.getLogger('off');
   }
-  let funcName = 'new';
-  switch(source) {
-    case 'wikia transcript':
-      // code block
-      break;
-    case 'wikia article':
-      // code block
-      break;
-    case 'google doc':
-      // code block
-      break;
-    case 'pdf':
-      // code block
-      break;
-    default:
-      logger.error(`Uh oh, ${funcName} was called without a valid source`);
-  }
-  return true;
+  return new Promise(function(resolve, reject) {
+    (async()=> {
+      let funcName = 'new';
+      let processed = 0;
+      let array = [];
+      episodeObjects.forEach(async function(episode) {
+        let res = await justin.search('episodes', episode.number);
+        console.log(res)
+        if (res) {
+          array.push(episode);
+        }
+        processed++;
+        if(processed === episodeObjects.length) {
+          if (logging) {
+            justin.write(`7.${funcName}`, array);
+          }
+          resolve(array);
+        }
+      })
+    })()
+  });
 };
 module.exports.add = (string, episodeObjects, logging=true) => {
   /**

@@ -1,0 +1,32 @@
+[
+  {
+    "index": "mbmbam-search",
+    "id": null,
+    "body": {
+      "group": "episode",
+      "podcast": null,
+      "episode": "TRANSCRIPT My Brother, My Brother, and Me Ep. 622: Parrots of life.",
+      "number": 622,
+      "url_scraped_from": "https://maximumfun.org/transcripts/my-brother-my-brother-and-me/transcript-my-brother-my-brother-and-me-ep-495-play-along-at-home/",
+      "download_url": "https://mbmbam.simplecast.com/episodes/mbmbam-495-play-along-at-home-HO_LwhPD",
+      "speaker": null,
+      "is_mcelroy": null,
+      "quote": null
+    }
+  },
+  {
+    "index": "mbmbam-search",
+    "id": null,
+    "body": {
+      "group": "episode",
+      "podcast": null,
+      "episode": "TRANSCRIPT My Brother, My Brother, and Me Ep. 496: The Hyena Hole",
+      "number": 496,
+      "url_scraped_from": "https://maximumfun.org/transcripts/my-brother-my-brother-and-me/transcript-my-brother-my-brother-and-me-ep-496-the-hyena-hole/",
+      "download_url": "https://mbmbam.simplecast.com/episodes/mbmbam-496-the-hyena-hole-ijQ4DrGG",
+      "speaker": null,
+      "is_mcelroy": null,
+      "quote": null
+    }
+  }
+]

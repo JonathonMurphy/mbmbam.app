@@ -65,30 +65,6 @@ class Index {
   }
 }
 module.exports.Index = Index;
-// class EpisodeIndex extends Index {
-//   constructor (episode) {
-//     super();
-//     this.type = 'episode';
-//     this.body = {};
-//       this.body.id = null;
-//       this.body.podcast = episode.podcast;
-//       this.body.episode = episode.title;
-//       this.body.number = episode.number;
-//       this.body.url_scraped_from = episode.transcript_url;
-//       this.body.download_url = episode.download_url;
-//   }
-// }
-// module.exports.EpisodeIndex = EpisodeIndex;
-// class QuoteIndex extends EpisodeIndex {
-//   constructor (episode, speaker, quote) {
-//     super(episode);
-//     this.index = 'quote';
-//     this.body.speaker = speaker;
-//     this.body.is_mcelroy = regex.mcelroy.test(speaker);
-//     this.body.quote = quote;
-//   }
-// }
-// module.exports.QuoteIndex = QuoteIndex;
 class Episode {
   constructor (s, t, tU, pC=null, html=null, dU=null) {
     /*
@@ -274,25 +250,57 @@ Total Number of Episodes: ${statObject.total}
   `);
   return statObject;
 };
-module.exports.search = (arg) => {
-  (async () => {
-    const { body } = await client.search({
-      index: 'mbmbam-search',
-      type: 'quote',
-      body: {
-        query: {
-          match: {
-            quote: arg
-          }
+module.exports.search = (string, arg, logging=true) => {
+  /**
+
+
+  **/
+  if (logging) {
+    logger = log4js.getLogger();
+  } else {
+    logger = log4js.getLogger('off');
+  }
+  return new Promise(function (resolve, reject) {
+    (async () => {
+      function reqBody(type) {
+        let object;
+        switch(type) {
+          case 'episodes':
+            object = {
+              index: 'mbmbam-search',
+              body: {
+                query: {
+                  match: {
+                    group: 'episode',
+                    number: arg
+                  }
+                }
+              }
+            };
+            return object;
+            break;
+          case 'quotes':
+            object = {
+              index: 'mbmbam-search',
+              body: {
+                query: {
+                  match: {
+                    quote: arg
+                  }
+                }
+              }
+            };
+            return object;
+            break;
+          default:
+            reject('No search type selected')
         }
       }
-    });
+      let { body } = await client.search(reqBody(string));
+      resolve(body.hits.hits)
 
-    body.hits.hits.forEach(function(hit) {
-      console.log(hit);
-      console.log("\n");
-    });
-  })();
+    })();
+  })
 };
 module.exports.index = (indexObjects, logging=true) => {
   /**
@@ -325,6 +333,7 @@ Number: ${indexObject.body.number}
 Indexing: ${indexObject.body.group}:
 ID: ${indexObject.id}
 Episode: ${indexObject.body.episode}
+Number: ${indexObject.body.number}
 Speaker: ${indexObject.body.speaker}
 Quote: ${indexObject.body.quote}
         `);
@@ -334,7 +343,6 @@ Quote: ${indexObject.body.quote}
   })();
 });
 };
-
 module.exports.map = (logging=true) => {
   if (logging) {
     logger = log4js.getLogger();
@@ -386,7 +394,6 @@ module.exports.map = (logging=true) => {
     })();
   });
 };
-
 module.exports.check = (logging=true) => {
   if (logging) {
     logger = log4js.getLogger();
@@ -401,4 +408,4 @@ module.exports.check = (logging=true) => {
       console.log(res.body['mbmbam-search'].mappings.properties);
     })()
   })
-}
+};
