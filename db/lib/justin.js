@@ -16,6 +16,7 @@ const { Client } = require('@elastic/elasticsearch'),
 
 /* Global Variables */
 const logDir = path.resolve(__dirname, '../logs/data/');
+const searchIndex = 'mbmbam-search';
 
 /* Logging configuration */
 // TODO: Add in an appender that will
@@ -46,7 +47,7 @@ let logger;
 /* Exported classes */
 class Index {
   constructor (type, episode, speaker=null, quote=null) {
-    this.index = 'mbmbam-search';
+    this.index = searchIndex;
     this.id = null;
     this.body = {};
       this.body.group = type;
@@ -267,21 +268,25 @@ module.exports.search = (string, arg, logging=true) => {
         switch(type) {
           case 'episodes':
             object = {
-              index: 'mbmbam-search',
+              index: searchIndex,
               body: {
                 query: {
-                  match: {
-                    group: 'episode',
-                    number: arg
-                  }
-                }
-              }
-            };
+                  bool: { 
+                    must: {
+                      term: { number: parseInt(arg) }
+                    },
+                    filter: {
+                      term: { group: 'episode' }
+                    } // down
+                  } // the
+                } // stairs
+              } // we
+            }; // go
             return object;
             break;
           case 'quotes':
             object = {
-              index: 'mbmbam-search',
+              index: searchIndex,
               body: {
                 query: {
                   match: {
@@ -352,7 +357,7 @@ module.exports.map = (logging=true) => {
   return new Promise(function (resolve, reject) {
     (async() => {
       await client.indices.create({
-        index: "mbmbam-search",
+        index: searchIndex,
         body: {
           mappings: {
             properties: {
@@ -388,7 +393,7 @@ module.exports.map = (logging=true) => {
         }
       });
       let res = await client.indices.getMapping({
-        index: 'mbmbam-search'
+        index: searchIndex
       });
       console.log(res);
     })();
@@ -403,9 +408,9 @@ module.exports.check = (logging=true) => {
   return new Promise(function (resolve, reject) {
     (async()=>{
       let res = await client.indices.getMapping({
-        index: 'mbmbam-search'
+        index: searchIndex
       });
-      console.log(res.body['mbmbam-search'].mappings.properties);
+      console.log(res.body[searchIndex].mappings.properties);
     })()
   })
 };

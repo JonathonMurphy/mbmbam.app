@@ -6,7 +6,11 @@
   Standalone script to search the Elasticsearch instance
 
   Usage:
-    search <query>
+  
+    node search.js <type> <query>
+
+    type = episodes | quotes
+    query = integer | string
 
 */
 
