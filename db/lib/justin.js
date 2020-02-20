@@ -271,17 +271,15 @@ module.exports.search = (string, arg, logging=true) => {
               index: searchIndex,
               body: {
                 query: {
-                  bool: { 
-                    must: {
-                      term: { number: parseInt(arg) }
-                    },
-                    filter: {
-                      term: { group: 'episode' }
-                    } // down
-                  } // the
-                } // stairs
-              } // we
-            }; // go
+                  bool: {
+                    must: [
+                      { term: { number: parseInt(arg) } },
+                      { term: { group: 'episode' } }
+                    ],
+                  }
+                }
+              }
+            };
             return object;
             break;
           case 'quotes':
