@@ -1,32 +1,32 @@
 [
   {
-    "index": "mbmbam-search",
-    "id": null,
-    "body": {
-      "group": "episode",
-      "podcast": null,
-      "episode": "TRANSCRIPT My Brother, My Brother, and Me Ep. 622: Parrots of life.",
-      "number": 622,
-      "url_scraped_from": "https://maximumfun.org/transcripts/my-brother-my-brother-and-me/transcript-my-brother-my-brother-and-me-ep-495-play-along-at-home/",
-      "download_url": "https://mbmbam.simplecast.com/episodes/mbmbam-495-play-along-at-home-HO_LwhPD",
-      "speaker": null,
-      "is_mcelroy": null,
-      "quote": null
-    }
+    "source": "wikia transcript",
+    "title": "Episode 20: I Dont Have It",
+    "number": 20,
+    "transcript_url": "http://mbmbam.wikia.com/wiki/Episode_104:_I_Hate_You,_Ron/Transcript",
+    "podcast": null,
+    "download_url": null,
+    "quotes": {},
+    "html": null
   },
   {
-    "index": "mbmbam-search",
-    "id": null,
-    "body": {
-      "group": "episode",
-      "podcast": null,
-      "episode": "TRANSCRIPT My Brother, My Brother, and Me Ep. 496: The Hyena Hole",
-      "number": 496,
-      "url_scraped_from": "https://maximumfun.org/transcripts/my-brother-my-brother-and-me/transcript-my-brother-my-brother-and-me-ep-496-the-hyena-hole/",
-      "download_url": "https://mbmbam.simplecast.com/episodes/mbmbam-496-the-hyena-hole-ijQ4DrGG",
-      "speaker": null,
-      "is_mcelroy": null,
-      "quote": null
-    }
+    "source": "wikia transcript",
+    "title": "Episode 188: Holler Smarts",
+    "number": 188,
+    "transcript_url": "http://mbmbam.wikia.com/wiki/Episode_188:_Holler_Smarts/Transcript",
+    "podcast": null,
+    "download_url": null,
+    "quotes": {},
+    "html": null
+  },
+  {
+    "source": "wikia transcript",
+    "title": "Episode 211: Mrs. Doubtfire 2",
+    "number": 211,
+    "transcript_url": "http://mbmbam.wikia.com/wiki/Episode_211:_Mrs._Doubtfire_2/Transcript",
+    "podcast": null,
+    "download_url": null,
+    "quotes": {},
+    "html": null
   }
 ]

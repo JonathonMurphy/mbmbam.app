@@ -535,10 +535,10 @@ module.exports.new = (episodeObjects, logging=true) => {
       let funcName = 'new';
       let processed = 0;
       let array = [];
-      episodeObjects.forEach(async function(episode) {
+      episodeObjects.forEach(async (episode) => {
         let res = await justin.search('episodes', episode.number);
-        console.log(res)
-        if (res) {
+        if (res.length == 0) {
+          logger.info(res);
           array.push(episode);
         }
         processed++;
@@ -548,8 +548,8 @@ module.exports.new = (episodeObjects, logging=true) => {
           }
           resolve(array);
         }
-      })
-    })()
+      });
+    })();
   });
 };
 module.exports.add = (string, episodeObjects, logging=true) => {

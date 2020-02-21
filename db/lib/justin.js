@@ -261,6 +261,9 @@ module.exports.search = (string, arg, logging=true) => {
   } else {
     logger = log4js.getLogger('off');
   }
+  if (typeof arg == 'string') {
+    arg = parseInt(arg)
+  }
   return new Promise(function (resolve, reject) {
     (async () => {
       function reqBody(type) {
@@ -273,7 +276,7 @@ module.exports.search = (string, arg, logging=true) => {
                 query: {
                   bool: {
                     must: [
-                      { term: { number: parseInt(arg) } },
+                      { term: { number: arg } },
                       { term: { group: 'episode' } }
                     ],
                   }
