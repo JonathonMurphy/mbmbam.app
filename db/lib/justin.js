@@ -134,6 +134,11 @@ module.exports.write = (string, data, ext='json', logging=true) => {
   // callback();
 };
 module.exports.sting2array = (string, regExp) => {
+  /*
+
+  Converts a string to an array by a given delimiter
+
+  */
   let array = string.match(regExp);
   if (array !==  null) {
     array.map(function(entry, index, array){
@@ -254,6 +259,15 @@ Total Number of Episodes: ${statObject.total}
 module.exports.search = (string, arg, logging=true) => {
   /**
 
+  Searches the Elasticsearch instance
+
+  String:
+    'episodes': Searches by episode number
+    'quotes': Searches by quotes
+
+  Argument:
+    int for episodes
+    string for quotes
 
   **/
   if (logging) {
@@ -350,6 +364,12 @@ Quote: ${indexObject.body.quote}
 });
 };
 module.exports.map = (logging=true) => {
+  /*
+
+  Creates an indix and gives it thhe default
+  episode/quote mapping
+
+  */
   if (logging) {
     logger = log4js.getLogger();
   } else {
@@ -401,6 +421,11 @@ module.exports.map = (logging=true) => {
   });
 };
 module.exports.check = (logging=true) => {
+  /*
+
+  Verifies that mappings are in place 
+
+  */
   if (logging) {
     logger = log4js.getLogger();
   } else {
