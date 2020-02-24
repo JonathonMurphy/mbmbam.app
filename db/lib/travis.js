@@ -234,7 +234,7 @@ Title: ${episode.title}
                 processed++;
                 if(processed === array.length) {
                   if (logging) {
-                    justin.write(`2.${funcName}.${source}`, episodeObjects);
+                    justin.write(`3.${funcName}.${source}`, episodeObjects);
                   }
                   resolve(episodeObjects);
                }
@@ -276,7 +276,7 @@ Title: ${episodeObjects[i].title}
             } // End for loop
             await browser.close();
             if (logging) {
-              justin.write(`2.${funcName}.${source}`, episodeObjects);
+              justin.write(`3.${funcName}.${source}`, episodeObjects);
             }
             resolve(episodeObjects);
           } catch (error) {
@@ -316,7 +316,7 @@ Title: ${episodeObjects[i].title}
                 processed++;
                 if (processed === episodeObjects.length) {
                   if (logging) {
-                    justin.write(`2.${funcName}.${source}`, episodeObjects);
+                    justin.write(`3.${funcName}.${source}`, episodeObjects);
                   }
                   resolve(episodeObjects);
                 }
@@ -454,7 +454,7 @@ Source: ${episode.source}
       }
       if(processed === episodeObjects.length) {
         if (logging) {
-          justin.write(`3.${funcName}`, episodeObjects);
+          justin.write(`4.${funcName}`, episodeObjects);
         }
         resolve(episodeObjects);
      }
@@ -508,13 +508,13 @@ ${episode.number}: ${episode.transcript_url}
       }
     });
     if (logging) {
-      justin.write('4.noQuotes', noQuotes);
-      justin.write('4.checked', episodeObjects);
+      justin.write('5.noQuotes', noQuotes);
+      justin.write('5.checked', episodeObjects);
     }
     resolve(episodeObjects);
   });
 };
-module.exports.new = (episodeObjects, logging=true) => {
+module.exports.new = (source, episodeObjects, logging=true) => {
   /**
 
   Checks for new episodes that have not yet been indexed
@@ -544,7 +544,7 @@ module.exports.new = (episodeObjects, logging=true) => {
         processed++;
         if(processed === episodeObjects.length) {
           if (logging) {
-            justin.write(`7.${funcName}`, array);
+            justin.write(`2.${source}.${funcName}`, array);
           }
           resolve(array);
         }
@@ -609,7 +609,7 @@ module.exports.add = (string, episodeObjects, logging=true) => {
             });
           })
           .then(() => {
-            justin.write(`5.${funcName}`, episodeObjects);
+            justin.write(`6.${funcName}`, episodeObjects);
             resolve(episodeObjects);
           })
           .catch((err) => {
@@ -675,7 +675,7 @@ module.exports.format = (type, episodeObjects, logging=true) => {
         resolve(index);
     }
     if (logging) {
-      justin.write(`6.${funcName}.${type}`, index);
+      justin.write(`7.${funcName}.${type}`, index);
     }
     resolve(index);
   });
@@ -712,7 +712,7 @@ module.exports.id = (indexObjects, logging=true) => {
       processed++;
       if(processed === indexObjects.length) {
         if (logging) {
-          justin.write(`7.${funcName}`, index);
+          justin.write(`8.${funcName}`, index);
         }
         resolve(index);
       }
