@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 /*jshint esversion: 8 */
 'use strict';
+/*
+  griffin.js is the run script for the mbmbam db
+  scraping and indexing project
+/*
 /* Dependencies */
 const justin = require('../lib/justin'),
       travis = require('../lib/travis'),
