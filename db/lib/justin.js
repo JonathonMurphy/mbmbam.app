@@ -7,7 +7,7 @@
 /*
 /* Dependencies */
 const { Client } = require('@elastic/elasticsearch'),
-      client = new Client({node: 'https://vpc-mbmbam-jb5nrxn3lk3epnc44z74hgccfu.us-east-2.es.amazonaws.com'}),
+      client = new Client({node: 'https://search-mbmbam-jb5nrxn3lk3epnc44z74hgccfu.us-east-2.es.amazonaws.com'}),
       // client = new Client({node: 'http://127.0.0.1:9200'}),
       regex = require('./regex'),
       log4js = require('log4js'),
