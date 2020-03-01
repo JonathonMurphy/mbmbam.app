@@ -30,7 +30,7 @@ let found, newEps,
   });
   repos.forEach(async(repo) => {
     found = await travis.find(repo);
-    newEps = await travis.new(found);
+    newEps = await travis.new(repo, found);
     gotten.push(...await travis.get(repo, newEps));
     processed++;
     if(processed === repos.length) {
