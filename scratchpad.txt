@@ -1,0 +1,6 @@
+https://aws-codedeploy-us-east-2.s3.us-east-2.amazonws.com/latest/install
+
+https://aws-codedeploy-us-east-2.s3.us-east-2.amazonaws.com/latest/install
+
+
+sudo NODE_ENV=production npm start
