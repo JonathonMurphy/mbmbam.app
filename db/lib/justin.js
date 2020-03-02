@@ -175,7 +175,7 @@ module.exports.sortQuote = (text, object) => {
   }
 
 };
-module.exports.cleanup = (directory, daysToKeep=5, logging=true) => {
+module.exports.cleanup = (directory, daysToKeep=35, logging=true) => {
 /*
 
   This function is intended to clean up the logs
