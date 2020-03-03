@@ -1,4 +1,4 @@
-!*/*.gitkeep
+!*.gitkeep
 *node_modules
 *scratchpad*
 *test.*
