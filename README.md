@@ -36,7 +36,7 @@ Hitting /api/search/random returns 15 random quotes from the database
 curl https://mbmbam.app/api/search/justin/ducktales | jq
 ```
 
-## Returns
+#### Returns
 ```
 [
   {
