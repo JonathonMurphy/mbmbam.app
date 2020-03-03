@@ -1,4 +1,6 @@
-app/node_modules
+*/scratchpad*
+*/node_modules
+
 app/logs/access.log
 
 db/node_modules
@@ -19,7 +21,7 @@ db/logs/pdfs/*
 db/logs/html/*
 !db/logs/html/.gitkeep
 
-db/scratchpad*
+*/scratchpad*
 db/pdfTest.js
 
 db/test/cleanup/*
