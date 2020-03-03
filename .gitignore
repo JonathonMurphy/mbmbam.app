@@ -9,5 +9,3 @@ app/logs/access.log
 db/logs/data/*
 db/logs/console/*
 db/test/cleanup/*
-
-!db/test
