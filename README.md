@@ -54,7 +54,7 @@ curl https://mbmbam.app/api/search/justin/ducktales | jq
 ```
 
 
-### Return Object Structure
+#### Return Object Structure
 ```
 {
   0: {
