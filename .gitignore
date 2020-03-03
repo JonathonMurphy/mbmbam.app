@@ -1,30 +1,11 @@
-*/scratchpad*
-*/node_modules
+!*/*.gitkeep
+*node_modules
+*scratchpad*
+*test*
+*.pem
 
 app/logs/access.log
 
-db/node_modules
-
-db/elasticsearch-7.2.0
-
-db/bin/test.*
-
 db/logs/data/*
-!db/logs/data/.gitkeep
-
 db/logs/console/*
-!db/logs/console/.gitkeep
-
-db/logs/pdfs/*
-!db/logs/pdfs/.gitkeep
-
-db/logs/html/*
-!db/logs/html/.gitkeep
-
-*/scratchpad*
-db/pdfTest.js
-
 db/test/cleanup/*
-!db/test/cleanup/.gitkeep
-
-*.pem
