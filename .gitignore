@@ -1,7 +1,7 @@
 !*.gitkeep
 *node_modules
 *scratchpad*
-*test.*
+*test.js
 *.pem
 
 app/logs/access.log
