@@ -33,11 +33,28 @@ Hitting /api/search/random returns 15 random quotes from the database
 
 ### Example
 ```
-curl https://mbmbam.app/api/search/justin/ducktales
+curl https://mbmbam.app/api/search/justin/ducktales | jq
+```
+
+## returns
+```
+[
+  {
+    "group": "quote",
+    "podcast": null,
+    "episode": "364:‌ ‌Face‌ ‌2‌ ‌Face:‌ ‌Dumbledore’s‌ ‌Magic‌ ‌Buffalo‌ ‌Wings‌",
+    "number": 364,
+    "url_scraped_from": "https://docs.google.com/document/d/e/2PACX-1vQ_7Fol7wwQb0AbbVarck6cv7dsjTX7usaZC7a6LD-5tnhBVkBfWNZ-D7pZ5NYrgvY5wv0r7j27s3EW/pub",
+    "download_url": "https://mbmbam.simplecast.com/episodes/mbmbam-364-face-2-face-dumbledores-magic-buffalo-wings-CADoVZY_",
+    "speaker": "justin",
+    "is_mcelroy": true,
+    "quote": "Oh, DuckTales too, that’s choice."
+  },...
+
 ```
 
 
-### Return Object
+### Return Object Structure
 ```
 {
   0: {
