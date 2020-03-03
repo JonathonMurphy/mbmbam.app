@@ -31,6 +31,11 @@ Returns quotes from Travis where the words 'hot sauce' show up
 
 Hitting /api/search/random returns 15 random quotes from the database
 
+### Example
+```
+curl https://mbmbam.app/api/search/justin/ducktales
+```
+
 
 ### Return Object
 ```
