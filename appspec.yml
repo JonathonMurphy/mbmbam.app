@@ -4,15 +4,18 @@ files:
   - source: /
     destination: /var/www/mbmbam.app/
 hooks:
+  BeforeInstall:
+    - location: scripts/stop_server.sh
+      timeout: 300
+      runas: root
+    - location: scripts/remove_previous.sh
+      timeout: 3000
+      runas: root
   AfterInstall:
     - location: scripts/change_permissions.sh
       timeout: 300
       runas: root
   ApplicationStart:
     - location: scripts/start_server.sh
-      timeout: 300
-      runas: root
-  ApplicationStop:
-    - location: scripts/stop_server.sh
       timeout: 300
       runas: root
