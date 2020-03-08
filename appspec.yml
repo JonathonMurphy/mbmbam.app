@@ -15,6 +15,12 @@ hooks:
     - location: scripts/change_permissions.sh
       timeout: 300
       runas: root
+    - location: scripts/install_app.sh
+      timeout: 300
+      runas: root
+    - location: scripts/install_db.sh
+      timeout: 300
+      runas: root
   ApplicationStart:
     - location: scripts/start_server.sh
       timeout: 300
