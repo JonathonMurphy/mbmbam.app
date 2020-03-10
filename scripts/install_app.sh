@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-npm install --prefix ./var/www/mbmbam.app/app
+npm install --prefix /var/www/mbmbam.app/app
