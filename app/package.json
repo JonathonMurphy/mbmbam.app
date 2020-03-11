@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "start": "nodemon --ignore './sessions' server.js",
+    "start": "if [$NODE_ENV == 'production']; then node server.js; else nodemon --ignore './sessions' server.js; fi"
+    "start": "",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
