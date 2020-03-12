@@ -49,4 +49,8 @@ if (isDev) {
 
 require('./lib/search.js')(app, nconf.get('es'));
 
-app.listen(servicePort, () => console.log(`Ready and listening on port ${servicePort}`));
+app.listen(servicePort, () => {
+  if (isDev) {
+    console.log(`Ready and listening on port ${servicePort}`)
+  }
+});
