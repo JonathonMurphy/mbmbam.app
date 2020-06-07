@@ -1,7 +1,7 @@
+/*jshint esversion: 8 */
 /*
   * Provides API endpoints for searching the quotes index
 */
-'use strict';
 const request = require('request'),
       rp = require('request-promise');
 
@@ -109,7 +109,7 @@ module.exports = (app, es) => {
              ]
           }
        }
-    }
+    };
     rp({url, json: true, body: esReqBody})
       .then(esResBody => res.status(200).json(esResBody.hits.hits.map(({_source}) => _source)))
       .catch(({error}) => res.status(error.status || 502).json(error));
@@ -121,10 +121,29 @@ module.exports = (app, es) => {
     const esReqBody = {
        size: 1,
        query: {}
-    }
+    };
     rp({url, json: true, body: esReqBody})
       .then(esResBody => res.status(200).json(esResBody.hits.hits.map(({_source}) => _source)))
       .catch(({error}) => res.status(error.status || 502).json(error));
   });
 
-}
+  app.get('/api/episode/:number', (req, res) => {
+    const esReqBody = {
+      size: responseSize,
+      query: {
+        bool: {
+          must: {
+            term: {group: 'episode'},
+          },
+          should: {
+            term: {number: req.params.number}
+          }
+        }
+      }
+    };
+    rp({url, json: true, body: esReqBody})
+      .then(esResBody => res.status(200).json(esResBody.hits.hits.map(({_source}) => _source)))
+      .catch(({error}) => res.status(error.status || 502).json(error));
+  });
+
+};
