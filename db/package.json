@@ -11,21 +11,21 @@
   "author": "Jonathon Seth Murphy",
   "license": "ISC",
   "dependencies": {
-    "@elastic/elasticsearch": "^7.1.0",
+    "@elastic/elasticsearch": "^7.7.1",
     "chai": "^4.2.0",
     "cheerio": "^1.0.0-rc.3",
-    "chokidar": "^3.3.1",
-    "log4js": "^6.1.0",
-    "mocha": "^6.2.2",
+    "chokidar": "^3.4.0",
+    "log4js": "^6.3.0",
+    "mocha": "^6.2.3",
     "nodewikiaapi": "^2.0.3",
-    "object-hash": "^2.0.1",
+    "object-hash": "^2.0.3",
     "pdf-parse": "^1.1.1",
-    "puppeteer": "^2.0.0",
+    "puppeteer": "^2.1.1",
     "puppeteer-extra": "^3.1.9",
     "puppeteer-extra-plugin-user-data-dir": "^2.2.4",
     "puppeteer-extra-plugin-user-preferences": "^2.2.4",
-    "query-string": "^6.9.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "query-string": "^6.13.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5"
   }
 }
