@@ -135,7 +135,7 @@ module.exports = (app, es) => {
           must: {
             term: {group: 'episode'},
           },
-          should: {
+          filter: {
             term: {number: req.params.number}
           }
         }
